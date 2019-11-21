@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Collada File Import</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<div id="webgl-container">
+</div>
+<div id="gui-container" style="position:absolute;z-index:1;top:0;left:0">
+</div>
+
+<body>
+    <script type="text/javascript" src="js/three.js"></script>
+    <script type="text/javascript" src="js/OrbitControls.js"></script>
+    <script type="text/javascript" src="js/ColladaLoader.js"></script>
+    <script type="text/javascript" src="js/dat.gui.js"></script>
+    <script type="text/javascript">
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer({antialias: true});
+
+        renderer.setClearColor(0x051030, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        var webglContainer = document.getElementById('webgl-container');
+        webglContainer.appendChild(renderer.domElement);
+
+         // camera controls
+        var camControls = new THREE.OrbitControls(camera, renderer.domElement);
+        camControls.damping = 0.2;
+        camControls.addEventListener('change', render);
+
+         // window resize handler
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+        }
+
+         // create the ground plane
+        //var planeGeometry = new THREE.PlaneGeometry(80, 80, 10, 10);
+        var planeGeometry = new THREE.CircleGeometry(70, 100);
+        var planeMaterial = new THREE.MeshLambertMaterial({
+            color: 0x728b64
+        });
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 10;
+        plane.position.y = -30.05;
+        plane.position.z = -20;
+        scene.add(plane);
+
+         // ---- 3D CONTENT CREATION -----------------------------------------------------
+
+         var boxGeometry = new THREE.BoxGeometry(4, 4, 4);
+         var boxMaterial = new THREE.MeshLambertMaterial({
+            color: 0xff0000
+         });
+
+        var loader = new THREE.ColladaLoader();
+        loader.options.convertUpAxis = true;
+        var bots;
+
+        metoPartsShiny = ["Mesh_meto_body",
+        "Mesh_meto_arm_02_l", "Mesh_meto_arm_02_r",
+        "Mesh_meto_foot_02_l", "Mesh_meto_foot_02_r",
+        "Mesh_meto_arm_03_l", "Mesh_meto_arm_04_l", "Mesh_meto_arm_05_l",
+        "Mesh_meto_arm_03_r", "Mesh_meto_arm_04_r", "Mesh_meto_arm_05_r"];
+
+        metoPartsRest = [
+        "Mesh_meto_arm_01_l", "Mesh_meto_arm_01_r",
+        "Mesh_meto_foot_01_l", "Mesh_meto_foot_01_r",
+        "Mesh_meto_foot_03_l", "Mesh_meto_foot_03_r"];
+
+        hanaPartsShiny = ["Mesh_hana_body",
+        "Mesh_hana_arm_l_02", "Mesh_hana_arm_r_02",
+        "Mesh_hana_foot_l_02", "Mesh_hana_foot_r_02",
+        "Mesh_hana_finger_l_01", "Mesh_hana_finger_l_02", "Mesh_hana_finger_l_03",
+        "Mesh_hana_finger_r_01", "Mesh_hana_finger_r_02", "Mesh_hana_finger_r_03"];
+
+        hanaPartsRest = [
+        "Mesh_hana_arm_l_01", "Mesh_hana_arm_l_03",
+        "Mesh_hana_arm_r_01", "Mesh_hana_arm_r_03",
+        "Mesh_hana_foot_l_01", "Mesh_hana_foot_r_01"];
+
+        var metoBotMaterial = new THREE.MeshPhongMaterial({color: "#3b4572", shininess: 500});
+        //var metoBotMaterial = new THREE.MeshStandardMaterial({color: "#3b4572", metalness: 0.4});
+        var hanaBotMaterial = new THREE.MeshPhongMaterial({color: "#c07fa9", shininess: 500});
+
+        var metoColor = new THREE.Color( 0x8e97c0 );
+        var hanaColor = new THREE.Color( 0xeac7e2 );
+
+        loader.load('assets/two_robots.dae', function (collada) {   
+            var dae = collada.scene;
+            bots = dae;
+            dae.position.set(0, -30, 0);
+            dae.scale.set(5, 5, 5);
+            scene.add(dae);
+            var object, child;
+            /*child.material.alphaTest = 0.5;
+            child.material.opacity = 0.5;
+            child.material.transparent = true;*/
+            //child.material.color = "#3b4572"
+
+            for (x in metoPartsShiny) {
+              object = dae.getObjectByName(metoPartsShiny[x]);
+              object.children[0].material = metoBotMaterial;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+
+            for (x in metoPartsRest) {
+              object = dae.getObjectByName(metoPartsRest[x]);
+              object.children[0].material.color = metoColor;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+
+            for (x in hanaPartsShiny) {
+              object = dae.getObjectByName(hanaPartsShiny[x]);
+              object.children[0].material = hanaBotMaterial;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+
+            for (x in hanaPartsRest) {
+              object = dae.getObjectByName(hanaPartsRest[x]);
+              object.children[0].material.color = hanaColor;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+
+            animate();
+            render();
+
+        });
+        environment = [];
+        loader.load('assets/stones.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = -0.5 * Math.PI;
+          dae.position.set(30, -30, -40);
+          dae.scale.set(15, 15, 15);
+          stones = ["Icosphere.008", "Icosphere.009", "Icosphere.010",
+            "Icosphere.011", "Icosphere.012", "Icosphere.013",
+            "Icosphere.016", "Icosphere.017", "Icosphere.018"]
+          for (i in stones) {
+            dae.getObjectByName(stones[i]).children[0].castShadow = true;
+            dae.getObjectByName(stones[i]).children[0].receiveShadow = true;
+          }
+          scene.add(dae);
+        });
+        loader.load('assets/stones.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = 0.5 * Math.PI;
+          dae.position.set(-30, -30, -40);
+          dae.scale.set(15, 15, 15);
+          stones = ["Icosphere.008", "Icosphere.009", "Icosphere.010",
+            "Icosphere.011", "Icosphere.012", "Icosphere.013",
+            "Icosphere.016", "Icosphere.017", "Icosphere.018"]
+          for (i in stones) {
+            dae.getObjectByName(stones[i]).children[0].castShadow = true;
+            dae.getObjectByName(stones[i]).children[0].receiveShadow = true;
+          }
+          scene.add(dae);
+        });
+
+        loader.load('assets/tree.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = -0.5 * Math.PI;
+          dae.position.set(150, -30, -10);
+          dae.scale.set(15, 15, 15);
+          dae.getObjectByName("Cone.430").children[0].castShadow = true;
+          dae.getObjectByName("Cone.430").children[0].receiveShadow = true;
+          scene.add(dae);
+        });
+        loader.load('assets/tree.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = 0.5 * Math.PI;
+          dae.position.set(-70, -30, -60);
+          dae.scale.set(15, 15, 15);
+          dae.getObjectByName("Cone.430").children[0].castShadow = true;
+          dae.getObjectByName("Cone.430").children[0].receiveShadow = true;
+          scene.add(dae);
+        });
+
+        loader.load('assets/tree1.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = 0.5 * Math.PI;
+          dae.position.set(100, -30, 0);
+          dae.scale.set(15, 15, 15);
+          treeParts = ["Cylinder", "Cylinder.001", "Cylinder.002", "Cylinder.003",
+            "Cylinder.004", "Cylinder.005", "Cylinder.009"];
+          for (i in treeParts) {
+            dae.getObjectByName(treeParts[i]).children[0].castShadow = true;
+            dae.getObjectByName(treeParts[i]).children[0].receiveShadow = true;
+          }
+          scene.add(dae);
+        });
+        loader.load('assets/tree1.dae', function (collada) {   
+          var dae = collada.scene;
+          environment.push(dae);
+          dae.rotation.y = -0.5 * Math.PI;
+          dae.position.set(0, -30, -10);
+          dae.scale.set(15, 15, 15);
+          treeParts = ["Cylinder", "Cylinder.001", "Cylinder.002", "Cylinder.003",
+            "Cylinder.004", "Cylinder.005", "Cylinder.009"];
+          for (i in treeParts) {
+            dae.getObjectByName(treeParts[i]).children[0].castShadow = true;
+            dae.getObjectByName(treeParts[i]).children[0].receiveShadow = true;
+          }
+          scene.add(dae);
+        });
+
+
+        function colorChanged() {
+          if(bots){
+            var dae = bots;
+            var object, child;
+
+            for (x in metoPartsShiny) {
+              object = dae.getObjectByName(metoPartsShiny[x]);
+              object.children[0].material = metoBotMaterial;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+            for (x in metoPartsRest) {
+              object = dae.getObjectByName(metoPartsRest[x]);
+              object.children[0].material.color = metoColor;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+            for (x in hanaPartsShiny) {
+              object = dae.getObjectByName(hanaPartsShiny[x]);
+              object.children[0].material = hanaBotMaterial;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+            for (x in hanaPartsRest) {
+              object = dae.getObjectByName(hanaPartsRest[x]);
+              object.children[0].material.color = hanaColor;
+              object.children[0].castShadow = true;
+              object.children[0].receiveShadow = true;
+            }
+          }
+          render();
+        }/*
+        /*child.material.alphaTest = 0.5;
+        child.material.opacity = 0.5;
+        child.material.transparent = true;*/
+        //child.material.color = "#3b4572"*/
+         // ---- END OF 3D CONTENT CREATION ---------------------------------------------
+
+         // position and point the camera to the center of the scene
+        camera.position.x = -35;
+        camera.position.y = 20;
+        camera.position.z = 100;
+        camera.lookAt(scene.position);
+
+         // add subtle ambient lighting
+        //var ambientLight = new THREE.AmbientLight(0x000011);
+        var ambientLight = new THREE.AmbientLight(0x051030);
+        scene.add(ambientLight);
+
+         // add spotlight
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-80, 70, 90);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+         // add headlight
+        var headLight = new THREE.PointLight(0x888888, 1.0);
+        headLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+        headLight.castShadow = true;
+        //scene.add(headLight);
+
+         // add GUI control elements
+        var guiControls = new function () {
+            this.showAxes = true;
+            this.showGrid = false;
+            this.showPlane = true;
+            this.showEnvironment = true;
+            this.asWireframes = false;
+            this.animated = true;
+            this.withShadow = true;
+            this.withFog = false;
+            this.showRobots = true;
+
+            this.rotationSpeed = 0.005;
+            this.scaleRobots = 5;
+            this.shininessMeto = 500;
+            this.metalnessMeto = 0.4;
+            this.shininessHana = 500;
+            this.metalnessHana = 0.4;
+            this.isMetalMeto = false;
+            this.isMetalHana = false;
+        }
+
+        var gui = new dat.GUI();
+        var guiContainer = document.getElementById('gui-container');
+        guiContainer.appendChild(gui.domElement);
+
+        guiCustomisation = gui.addFolder('Meto Robot');
+        var metoColorControl = new function () {
+            this.color = metoBotMaterial.color.getHex();
+        }
+        guiCustomisation.addColor(metoColorControl, 'color').onChange( function (e) {
+          metoBotMaterial.color.setHex( e );
+          colorChanged();
+        });
+        guiCustomisation.add(guiControls, 'isMetalMeto').onChange(function (e) {
+            isMetalMeto = e;
+            if (isMetalMeto) {
+                metoBotMaterial = new THREE.MeshStandardMaterial({color: metoBotMaterial.color.getHex(), metalness: guiControls.metalnessMeto});
+            } else {
+                metoBotMaterial = new THREE.MeshPhongMaterial({color: metoBotMaterial.color.getHex(), shininess: guiControls.shininessMeto});
+            }
+            colorChanged();
+            render();
+        });
+        guiCustomisation.add(guiControls, 'shininessMeto', 0, 1000).onChange(function (e) {
+            metoBotMaterial.shininess = guiControls.shininessMeto;
+            colorChanged();
+          render();
+        });
+        guiCustomisation.add(guiControls, 'metalnessMeto', 0, 1).onChange(function (e) {
+            metoBotMaterial.metalness = guiControls.metalnessMeto;
+            colorChanged();
+          render();
+        });
+        var metoColor2Control = new function () {
+            this.secondaryColor = metoColor.getHex();
+        }
+        guiCustomisation.addColor(metoColor2Control, 'secondaryColor').onChange( function (e) {
+          metoColor.setHex( e );
+          colorChanged();
+        });
+        guiCustomisation.open();
+
+
+        guiCustomisation = gui.addFolder('Hana Robot');
+        var hanaColorControl = new function () {
+            this.color = hanaBotMaterial.color.getHex();
+        }
+        guiCustomisation.addColor(hanaColorControl, 'color').onChange( function (e) {
+          hanaBotMaterial.color.setHex( e );
+          colorChanged();
+        });
+        guiCustomisation.add(guiControls, 'isMetalHana').onChange(function (e) {
+            isMetalHana = e;
+            if (isMetalHana) {
+                hanaBotMaterial = new THREE.MeshStandardMaterial({color: hanaBotMaterial.color.getHex(), metalness: guiControls.metalnessHana});
+            } else {
+                hanaBotMaterial = new THREE.MeshPhongMaterial({color: hanaBotMaterial.color.getHex(), shininess: guiControls.shininessHana});
+            }
+            colorChanged();
+            render();
+        });
+        guiCustomisation.add(guiControls, 'shininessHana', 0, 1000).onChange(function (e) {
+            hanaBotMaterial.shininess = guiControls.shininessHana;
+            colorChanged();
+          render();
+        });
+        guiCustomisation.add(guiControls, 'metalnessHana', 0, 1).onChange(function (e) {
+            hanaBotMaterial.metalness = guiControls.metalnessHana;
+            colorChanged();
+          render();
+        });
+        var hanaColor2Control = new function () {
+            this.secondaryColor = hanaColor.getHex();
+        }
+        guiCustomisation.addColor(hanaColor2Control, 'secondaryColor').onChange( function (e) {
+          hanaColor.setHex( e );
+          colorChanged();
+        });
+        guiCustomisation.open();
+
+
+        gui.add(guiControls, 'scaleRobots', 1, 10).onChange(function (e) {
+          bots.scale.set(guiControls.scaleRobots, guiControls.scaleRobots, guiControls.scaleRobots);
+          render();
+        });
+
+
+
+        var metoBotMaterial = new THREE.MeshPhongMaterial({color: "#3b4572", shininess: 500});
+        //var metoBotMaterial = new THREE.MeshStandardMaterial({color: "#3b4572", metalness: 0.4});
+        var hanaBotMaterial = new THREE.MeshPhongMaterial({color: "#c07fa9", shininess: 500});
+
+        guiCustomisation = gui.addFolder('Display Elements');
+        guiCustomisation.add(guiControls, 'showRobots').onChange(function (e) {
+            showPlane = e;
+            if (showPlane) {
+                scene.add(bots);
+            } else {
+                scene.remove(bots);
+            }
+            render();
+        });
+
+        guiCustomisation.add(guiControls, 'showPlane').onChange(function (e) {
+            showPlane = e;
+            if (showPlane) {
+                scene.add(plane);
+            } else {
+                scene.remove(plane);
+            }
+            render();
+        });
+
+        guiCustomisation.add(guiControls, 'showEnvironment').onChange(function (e) {
+            showEnvironment = e;
+            if (showEnvironment) {
+              for (x in environment) {
+                scene.add(environment[x]);
+              }
+            } else {
+              for (x in environment) {
+                scene.remove(environment[x]);
+              }
+            }
+            render();
+        });
+        guiCustomisation.open();
+
+        gui.add(guiControls, 'rotationSpeed', -0.03, 0.03);
+
+        gui.add(guiControls, 'animated').onChange(function (e) {
+          animated = e;
+          if (animated) animate();
+        });
+
+        var ambientControls = new function () {
+          this.withAmbient = true;
+          this.color = ambientLight.color.getHex();
+          this.intensity = ambientLight.intensity;
+        }
+
+        var spotControls = new function () {
+          this.withSpot = true;
+          this.color = spotLight.color.getHex();
+          this.intensity = spotLight.intensity;
+          this.penumbra = spotLight.penumbra;
+          this.decay = spotLight.decay;
+          this.angle = spotLight.angle;
+          this.withShadow = true;
+        }
+
+        var headControls = new function () {
+          this.withHead = true;
+          this.color = headLight.color.getHex();
+          this.intensity = headLight.intensity;
+        }
+
+         // init and call render function
+        function render() {
+            headLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+            renderer.render(scene, camera);
+        }
+        initAnim(true); // no gui
+        initShadow(true);
+        initFog(false);
+        render();
+        setShadow(true);
+        setFog(false);
+
+         // animate the 3D objects
+        function initAnim(value) {/**/}
+
+        var step = 0;
+        var scalingStep = 0;
+
+        function animate() {
+            if (guiControls.animated) {
+                // DO ANIMATING 3D ELEMENTS
+                step += 1;
+                //bots.rotation.y = - step * 1/1000.0;
+                bots.rotation.y -= guiControls.rotationSpeed;
+
+                // request re-rendering
+                requestAnimationFrame(animate);
+            }
+            render();
+        }
+
+         // shadow cast on plane
+        function initShadow(value) {
+            // SET receiveShadow AND castShadow FLAGS OF 3D ELEMENTS WITH SHADOW
+            plane.receiveShadow = value;
+            spotLight.castShadow = value;
+            spotLight.shadow.mapSize.width = 2048;
+            spotLight.shadow.mapSize.height = 2048;
+            renderer.shadowMap.enabled = value;
+            if (bots) {
+              bots.castShadow = value;
+            }
+            /*if (value) {
+              gui.add(spotControls, 'withShadow').onChange(function (e) {
+                  withShadow = e;
+                  setShadow(withShadow);
+              });
+            }*/
+        }
+
+        function setShadow(value) {
+            if (value) {
+                renderer.shadowMap.autoUpdate = true;
+            } else {
+                renderer.shadowMap.autoUpdate = false;
+                renderer.clearTarget(spotLight.shadow.map);
+            }
+            render();
+        }
+
+         // fog
+        var fog;
+
+        function initFog(value) {
+            if (value) {
+                fog = new THREE.Fog(0xeeeeee, 0.0000001, 150);
+                scene.fog = fog;
+                gui.add(guiControls, 'withFog').onChange(function (e) {
+                    withFog = e;
+                    setFog(withFog);
+                });
+            }
+        }
+
+        function setFog(value) {
+            if (!fog) return;
+            if (value) {
+                fog.near = 0.000000001;
+                fog.far = 150;
+            } else {
+                fog.near = 8000;
+                fog.far = 8000;
+            }
+            render();
+        }
+    </script>
+</body>
+
+</html>
