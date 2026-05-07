@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Jenny's Playground</title>
+  <meta name="description" content="Small experiments, projects, and things I'm learning." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+
+<body>
+
+  <!-- ---- Navigation ---- -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <a href="/index.html" class="nav-logo">
+        jenny<span>.</span>miki
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/pages/projects.html">Projects</a></li>
+        <li><a href="#">Experiments</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+
+      <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="3" y1="6"  x2="19" y2="6"/>
+          <line x1="3" y1="11" x2="19" y2="11"/>
+          <line x1="3" y1="16" x2="19" y2="16"/>
+        </svg>
+      </button>
+
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-wrap">
+
+      <!-- ---- Featured Projects ---- -->
+      <section class="section">
+        <div class="section-header fade-in">
+          <h2>Things</h2>
+          <span class="section-subtitle">Some projects, experiments, and things in progress.</span>
+        </div>
+        <div class="card-grid" id="projects-container">
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ---- Footer ---- -->
+  <footer class="footer">
+    <ul class="footer-links">
+      <li><a href="https://github.com/jschuerch" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/jennifer-sch%C3%BCrch-030471100/" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+
+    <div class="theme-switcher">
+      <a class="theme-btn pink" data-theme="theme-pink"></a>
+      <a class="theme-btn gold" data-theme="theme-gold"></a>
+      <a class="theme-btn blue" data-theme="theme-blue"></a>
+      <a class="theme-btn green" data-theme="theme-green"></a>
+    </div>
+
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+
+</html>
