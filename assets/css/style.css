@@ -298,7 +298,9 @@ main { padding-top: var(--nav-h); }
   border-radius: 3px;
   padding: 2px 8px;
   margin-bottom: 0.8rem;
+  margin-right: 0.3rem;
 }
+.card-tag.inprogress { opacity: 0.6; }
 
 .card h3 {
   font-size: 1.15rem;
