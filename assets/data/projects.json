@@ -2,6 +2,7 @@
   {
     "title": "Visual Playground",
     "tag": "HTML/CSS",
+    "datatag": "HTML/CSS js",
     "description": "Experimenting with animation, motion, and interactive browser graphics.",
     "github": "https://github.com/jschuerch/jschuerch.github.io",
     "live": "#",
@@ -11,9 +12,10 @@
 
   {
     "title": "Two robots scene",
-    "tag": "Three JS",
+    "tag": "three.js",
+    "datatag": "three.js js",
     "description": "Interactive robot scene with customizable materials and lighting. An older Three.js experiment using imported 3D assets, lighting, materials, and interactive controls.",
-    "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/two-robots",
+    "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/experiments/two-robots",
     "live": "experiments/two-robots",
     "featured": true
   },
