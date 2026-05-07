@@ -36,3 +36,20 @@ if (hamburger && navLinks) {
     a.addEventListener('click', () => navLinks.classList.remove('open'))
   );
 }
+
+/* Change color theme */
+const savedTheme = localStorage.getItem('theme');
+
+if (savedTheme) {
+  document.body.className = savedTheme;
+}
+
+const buttons = document.querySelectorAll('.theme-btn');
+
+buttons.forEach(button => {
+  button.addEventListener('click', () => {
+    const theme = button.dataset.theme;
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+  });
+});
