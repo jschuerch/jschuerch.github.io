@@ -115,18 +115,19 @@ img { display: block; max-width: 100%; }
   padding: 4px;
 }
 
-/* --- Hero --------------------------------------------------- */
+/* --- Main --------------------------------------------------- */
+main { padding-top: var(--nav-h); }
+
 .hero {
-  padding: calc(var(--nav-h) + 6rem) 2rem 6rem;
+  padding: 6rem 2rem 2rem;
   max-width: var(--max-w);
   margin: 0 auto;
 }
 
-/* --- Layout ------------------------------------------------- */
 .page-wrap {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: calc(var(--nav-h) + 4rem) 2rem 4rem;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 4rem 2rem 4rem;
 }
 
 .section { margin-bottom: 5rem; }
