@@ -24,7 +24,10 @@ const projectsContainer = document.getElementById('projects-container');
 
 if (projectsContainer) {
     fetch('/assets/data/projects.json')
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    })
     .then(projects => {
 
         projects.forEach(project => {
@@ -33,7 +36,7 @@ if (projectsContainer) {
 
             card.className = 'card fade-in';
 
-            let githublink = ''
+            let githublink = '';
             if (project.github && project.github !== '') {
                 githublink = `
               <a href="${project.github}" target="_blank" rel="noopener">
@@ -45,7 +48,7 @@ if (projectsContainer) {
               `;
             }
 
-            let livelink = ''
+            let livelink = '';
             if (project.live && project.live !== '') {
                 const liveTarget = project.live === '#' ? '' : 'target="_blank" rel="noopener"';
                 livelink = `
@@ -61,13 +64,13 @@ if (projectsContainer) {
             }
 
             if (project.datatag) {
-                card.dataset.tag = project.datatag
+                card.dataset.tag = project.datatag;
             }
 
-            let inprogress = ''
+            let inprogress = '';
             if (project.inprogress) {
-                inprogress = '<span class="card-tag inprogress">In Progress</span>'
-                card.dataset.tag = (card.dataset.tag || '') + ' inprogress'
+                inprogress = '<span class="card-tag inprogress">In Progress</span>';
+                card.dataset.tag = (card.dataset.tag || '') + ' inprogress';
             }
 
 
@@ -83,13 +86,15 @@ if (projectsContainer) {
             `;
 
             projectsContainer.appendChild(card);
-            observer.observe(card);
         });
         observeFadeIns();
     }).catch(err => {
         console.error('Failed to load projects:', err);
         projectsContainer.innerHTML = '<p>Could not load projects.</p>';
+        observeFadeIns();
     });
+} else {
+  observeFadeIns();
 }
 
 /* Highlight active nav link based on current page */
