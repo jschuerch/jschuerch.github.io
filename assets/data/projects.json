@@ -4,6 +4,7 @@
     "tag": "HTML/CSS",
     "datatag": ["HTML/CSS", "JavaScript"],
     "description": "Experimenting with animation, motion, and interactive browser graphics.",
+    "no-img": "/assets/img/thumbnails/visual-playground.png",
     "github": "https://github.com/jschuerch/jschuerch.github.io",
     "live": "#",
     "featured": true,
@@ -15,8 +16,9 @@
     "tag": "three.js",
     "datatag": ["Three.js", "JavaScript"],
     "description": "Interactive robot scene with customizable materials and lighting. An older Three.js experiment using imported 3D assets, lighting, materials, and interactive controls.",
+    "img": "/assets/img/thumbnails/two-robots.png",
     "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/experiments/two-robots",
-    "live": "experiments/two-robots",
+    "live": "/experiments/two-robots",
     "featured": true
   },
 

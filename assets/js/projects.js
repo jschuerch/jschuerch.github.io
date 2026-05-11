@@ -99,16 +99,30 @@ if (projectsContainer) {
           card.dataset.tags = (card.dataset.tags || '') + ' inprogress';
         }
 
+        let imgTag = '';
+        let cardTagsClass = 'card-tags';
+        if (project.img) {
+          imgTag = `<img src="${project.img}" alt="${project.title} screenshot" class="card-thumb">`;
+          cardTagsClass += ' overlay';
+        } else {
+          card.classList.add('no-thumb');
+        }
+          
 
         card.innerHTML = `
           <article class="card">
+          ${imgTag}
+          <div class="card-content">
+          <div class="${cardTagsClass}">
           <span class="card-tag">${project.tag}</span> 
           ${inprogress}
+          </div>
           <h3>${project.title}</h3>
           <p>${project.description}</p>
           <div class="card-links">
               ${githublink}
               ${livelink}
+          </div>
           </div>
           </article>
           `;
