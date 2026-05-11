@@ -55,7 +55,7 @@ if (projectsContainer) {
     .then(projects => {
       const featuredOnly = projectsContainer.dataset.featured === 'true';
       projects.forEach(project => {
-        if (featuredOnly && !project.featured) return;
+        if (project.hidden || (featuredOnly && !project.featured)) return;
 
         const card = document.createElement('div');
 
@@ -107,7 +107,7 @@ if (projectsContainer) {
         } else {
           card.classList.add('no-thumb');
         }
-          
+
 
         card.innerHTML = `
           <article class="card">

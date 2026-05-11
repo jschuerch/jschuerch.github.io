@@ -59,3 +59,7 @@ buttons.forEach(button => {
     localStorage.setItem('theme', theme);
   });
 });
+
+if (!document.getElementById('projects-container')) {
+  observeFadeIns();
+}

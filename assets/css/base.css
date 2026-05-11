@@ -1,0 +1,113 @@
+/* --- Reset & Variables -------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --theme-pink: #ef77b5;
+  --theme-gold: #d4a94a;
+  --theme-blue: #6ba8ff;
+  --theme-green: #7ee081;
+
+  --bg: #0e0e0e;
+  --bg2: #161616;
+  --bg3: #1f1f1f;
+  --surface: #252525;
+  --border: #2e2e2e;
+  --text: #d9c0d0;
+  --muted: #7a7279;
+  --accent: var(--theme-pink);
+  --accent-rgb: 239, 119, 181;
+  --accent2: #dc438b;
+  --danger: #c45a5a;
+  --hover-accent: #e05fb4;
+  --hover-accent2: #fff;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --radius: 6px;
+  --radius-lg: 12px;
+  --max-w: 860px;
+  --nav-h: 60px;
+  --transition: 220ms ease;
+
+}
+
+.theme-gold {
+  --text: #e8e6e0;
+  --muted: #7a7772;
+  --accent: var(--theme-gold);
+  --accent-rgb: 212, 169, 74;
+  --accent2: #c46b3a;
+  --hover-accent: #e0bb5f;
+}
+
+.theme-blue {
+  --accent: var(--theme-blue);
+  --accent-rgb: 107, 168, 255;
+  --accent2: #4f7fff;
+  --hover-accent: #505ed7;
+}
+
+.theme-green {
+  --accent: var(--theme-green);
+  --accent-rgb: 126, 224, 129;
+  --accent2: #4fcf65;
+  --hover-accent: #3cb646;
+}
+
+/* --- Base --------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition), opacity var(--transition);
+}
+
+a:hover {
+  color: var(--hover-accent2);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--text);
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}

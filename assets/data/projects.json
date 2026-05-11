@@ -19,7 +19,8 @@
     "img": "/assets/img/thumbnails/two-robots.png",
     "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/two-robots",
     "live": "/two-robots",
-    "featured": true
+    "featured": true,
+    "hidden": false
   },
 
   {
