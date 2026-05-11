@@ -17,8 +17,8 @@
     "datatag": ["Three.js", "JavaScript"],
     "description": "Interactive robot scene with customizable materials and lighting. An older Three.js experiment using imported 3D assets, lighting, materials, and interactive controls.",
     "img": "/assets/img/thumbnails/two-robots.png",
-    "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/experiments/two-robots",
-    "live": "/experiments/two-robots",
+    "github": "https://github.com/jschuerch/jschuerch.github.io/tree/master/two-robots",
+    "live": "/two-robots",
     "featured": true
   },
 
