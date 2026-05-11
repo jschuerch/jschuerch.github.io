@@ -298,6 +298,12 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.25rem;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.card-grid.filtering {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .card {
@@ -308,6 +314,7 @@ main {
   transition: border-color var(--transition), transform var(--transition);
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 .card:hover {
@@ -370,6 +377,38 @@ main {
 .card-links a:hover {
   color: var(--accent);
 }
+
+/* --- Cards filter ---------------------------------------------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.filter-btn {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: color var(--transition), opacity var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.filter-btn:hover {
+  color: var(--hover-accent2);
+  border-color: var(--muted);
+}
+
+.filter-btn.active {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 
 /* --- Interests List -------------------------------------------- */
 .interests-grid {
