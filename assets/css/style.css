@@ -356,6 +356,12 @@ main {
 }
 
 /* --- Experiments ----------------------------------------------- */
+.experiment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
 .experiment-item {
   background: var(--bg2);
   border: 1px solid var(--border);

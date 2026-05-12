@@ -16,14 +16,310 @@
     rel="stylesheet" />
 
   <link rel="stylesheet" href="/assets/css/base.css" />
-  <style></style>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+
+    main {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+      background: pink;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .configuration {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(20, 20, 20, 0.7);
+      backdrop-filter: blur(1px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .config-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      position: relative;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      background: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: left var(--transition), width var(--transition);
+      pointer-events: none;
+    }
+
+    .toggle-group button {
+      position: relative;
+      background: none;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color var(--transition);
+    }
+
+    .toggle-group button.active {
+      color: var(--bg);
+    }
+  </style>
 </head>
 
 <body>
 
-  <canvas id="particles"></canvas>
-  <div class="label">Move your mouse · experiment 01 — particles</div>
+  <main>
+    <canvas id="particle-canvas"></canvas>
+    <div class="configuration">
 
+      <div class="config-group">
+        <span class="config-label">Particle Mode</span>
+
+        <div class="toggle-group" id="theme-toggle">
+          <div class="toggle-slider"></div>
+          <button onclick="selectTab('theme-toggle', 0, 'wrap')">Wrap</button>
+          <button onclick="selectTab('theme-toggle', 1, 'bounce')">Bounce</button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+  <script>
+    /* CONFIGURATION */
+    const ParticleMode = {
+      WRAP: "wrap",
+      BOUNCE: "bounce"
+    };
+    let mode = ParticleMode.BOUNCE;
+
+    function selectTab(groupId, index, newMode) {
+      const group = document.getElementById(groupId);
+      const buttons = group.querySelectorAll('button');
+      const slider = group.querySelector('.toggle-slider');
+
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+
+      const activeBtn = buttons[index];
+      slider.style.left = activeBtn.offsetLeft + 'px';
+      slider.style.width = activeBtn.offsetWidth + 'px';
+
+      mode = newMode;
+    }
+
+    // Initialise on page load
+    document.querySelectorAll('.toggle-group').forEach(group => {
+      let idx = 1;
+      if (mode == ParticleMode.BOUNCE) idx = 1;
+      const activeBtn = group.querySelectorAll('button')[idx];
+      const slider = group.querySelector('.toggle-slider');
+      activeBtn.classList.add('active');
+      slider.style.left = activeBtn.offsetLeft + 'px';
+      slider.style.width = activeBtn.offsetWidth + 'px';
+    });
+
+
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let W, H, particles;
+    let mouse = { x: -9999, y: -9999 };
+
+    const count = 120;
+    const radius = 2;
+    const speed = 0.4;
+    const repel = 90;
+    const force = 2.5;
+    const color = 'black';
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.vx = (Math.random() - 0.5) * speed;
+        this.vy = (Math.random() - 0.5) * speed;
+        this.color = "black";
+      }
+
+      update() {
+        // console.log(mouse.x, mouse.y);
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx * dx, dy * dy);
+        if (dist < repel && dist > 0) {
+          const f = 1 - dist / repel;
+          let dirX = dx / dist;
+          let dirY = dy / dist;
+          this.vx += dirX * f * force;
+          this.vy += dirY * f * force;
+        }
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Keep particles inside the canvas
+        if (mode == ParticleMode.BOUNCE) {
+          if (this.x <= 0 || this.x >= W) {
+            this.vx *= -1;
+          }
+          if (this.y <= 0 || this.y >= H) {
+            this.vy *= -1;
+          }
+        } else if (mode == ParticleMode.WRAP) {
+          this.moveInFrame();
+        }
+      }
+      /*
+76.54268047751793 0.14952577247202295 0.14952577247202292 ____ 1 -12.653071316289244 particles.html:205:21
+67.17108136939487 0.2536546514511681 0.25365465145116817 ____ 1 -11.802843898005813 particles.html:205:21
+32.94152434542457 0.6339830628286159 0.6339830628286158 ____ 1 -27.373361851667816 particles.html:205:21
+23.451507772319474 0.7394276914186725 0.7394276914186726 ____ 1 -51.51390624633923 particles.html:205:21
+23.35297898811973 0.7405224556875586 0.7405224556875585 ____ 1 -58.91509398546253 particles.html:205:21
+38.0573926355205 0.5771400818275499 0.57714008182755 ____ 1 -38.843864428367 particles.html:205:21
+47.95886385132076 0.46712373498532495 0.4671237349853249 ____ 1 -33.456148201646 particles.html:205:21
+69.28979955347654 0.2301133382947051 0.23011333829470515 ____ 1 -18.203571659740685 particles.html:205:21
+84.48241029748397 0.061306552250178156 0.061306552250178115 ____ 1 -14.017761553406457 particles.html:205:21
+75.26180628292127 0.16375770796754144 0.1637577079675414 ____ 1 -22.178726702751025 particles.html:205:21
+72.59243328760567 0.19341740791549253 0.19341740791549256 ____ -1 21.938762995023097 particles.html:205:21
+45.192200672069475 0.49786443697700583 0.4978644369770058 ____ -1 36.83181036661278 particles.html:205:21
+27.79196805653328 0.6912003549274081 0.691200354927408 ____ -1 64.35958302514285 particles.html:205:21
+22.84185174876518 0.7462016472359424 0.7462016472359425 ____ -1 83.67480291700257 particles.html:205:21
+45.64115390215659 0.4928760677538157 0.49287606775381565 ____ -1 56.44110782240661 particles.html:205:21
+83.34738622406485 0.0739179308437239 0.07391793084372389 ____ -1 2.4223177716147206 particles.html:205:21
+68.24094879291306 0.24176723563429933 0.24176723563429936 ____ -1 2.953291801413719 particles.html:205:21
+73.24092128662039 0.18621198570421787 0.18621198570421782 ____ -1 36.70709658723386 particles.html:205:21
+55.63451136176127 0.381838762647097 0.38183876264709704 ____ -1 3.761641456881077 particles.html:205:21
+45.52807393060948 0.4941325118821169 0.49413251188211693 ____ -1 4.633175094437439 particles.html:205:21
+86.6169172241905 0.03758980862010554 0.037589808620105525 ____ -1 0.238743992749419 particles.html:205:21
+37.38944934369874 0.5845616739589029 0.5845616739589028 ____ -1 7.089675765762507 particles.html:205:21
+84.01102775395793 0.06654413606713408 0.06654413606713405 ____ -1 -0.1008625192783917 particles.html:205:21
+83.90513828372536 0.06772068573638484 0.06772068573638479 ____ -1 -0.45144497159066543 particles.html:205:21
+86.2992488134928 0.04111945762785783 0.04111945762785785 ____ -1 -0.7927317444907347 particles.html:205:21
+81.45484343087844 0.09494618410135065 0.0949461841013507 ____ -1 -5.478004641358374 particles.html:205:21
+73.8579080433799 0.17935657729577897 0.17935657729577892 ____ -1 -5.41165828479378 particles.html:205:21
+68.76097265588135 0.2359891927124295 0.23598919271242946 ____ -1 -5.333063816486532 particles.html:205:21
+70.27370992731267 0.21918100080763706 0.21918100080763703 ____ -1 21140.917709429348 particles.html:205:21
+68.4701664933857 0.23922037229571438 0.23922037229571436 ____ -1 -5.065783168853238 particles.html:205:21
+73.37323110588716 0.1847418766012538 0.18474187660125385 ____ -1 -4.986333522960151 particles.html:205:21
+74.66782386764339 0.1703575125817401 0.17035751258174003 ____ 1 -13.840648847079834 particles.html:205:21
+52.674849513085974 0.4147238942990447 0.41472389429904477 ____ 1 -20.185050006222447 particles.html:205:21
+50.343858061566834 0.44062379931592405 0.4406237993159241 ____ 1 -22.308831098467373 particles.html:205:21
+50.512866610047695 0.4387459265550256 0.43874592655502564 ____ 1 -22.153099286102748 particles.html:205:21
+66.01989225549028 0.2664456416056636 0.26644564160566364 ____ 1 -18.612758998542972 particles.html:205:21
+27.512638058307857 0.6943040215743571 0.6943040215743572 ____ -1 650798.8779932383 particles.html:205:21
+88.857909352452 0.012689896083866694 0.012689896083866725 ____ 1 -14.279826400330926 particles.html:205:21
+73.07237009105665 0.18808477676603716 0.1880847767660372 ____ -1 279117.6794557269 particles.html:205:21
+83.00972561190895 0.0776697154232339 0.07766971542323386 ____ 1 176.74205204331813 particles.html:205:21
+75.56160539794075 0.1604266066895472 0.16042660668954722 ____ 1 45.316210954106516 particles.html:205:21
+76.90805621534196 0.14546604205175603 0.14546604205175606 ____ 1 52.51203367371885 particles.html:205:21
+
+
+      */
+
+
+      moveInFrame() {
+        if (this.x < 0) {
+          this.x = W;
+        } else if (this.x > W) {
+          this.x = 0;
+        }
+        if (this.y < 0) {
+          this.y = H;
+        } else if (this.y > H) {
+          this.y = 0;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    function drawMouse() {
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+    }
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      particles.forEach((p) => p.reset());
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach((p) => { p.update(); p.draw(); });
+      drawMouse();
+      requestAnimationFrame(loop);
+    }
+
+    function init() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      particles = Array.from({ length: count }, () => new Particle());
+      particles[0].color = "white";
+    }
+
+
+    init();
+    loop();
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY });
+    window.addEventListener("mouseleave", (e) => { console.log("mouse has left"); mouse.x = -9999; mouse.y = -9999 });
+
+  </script>
 
 </body>
 
