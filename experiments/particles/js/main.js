@@ -23,30 +23,32 @@ function selectTab(groupId, index, newMode) {
 }
 
 /* Configuration toggle */
-const config = document.querySelector('.configuration');
-const configToggle = config.querySelector('.config-toggle');
-if (config && configToggle) {
+const configContainer = document.querySelector('.configuration');
+const configToggle = configContainer.querySelector('.config-toggle');
+if (configContainer && configToggle) {
   configToggle.addEventListener('click', () => {
-    config.classList.toggle('open');
+    configContainer.classList.toggle('open');
     configToggle.setAttribute(
       'aria-expanded',
-      config.classList.contains('open')
+      configContainer.classList.contains('open')
     );
   });
 }
 
-// Initialise on page load
-document.querySelectorAll('.toggle-group').forEach(group => {
-  const isOpen = config.classList.contains('open');
-  if (!isOpen) config.classList.add('open');
-  let idx = 0;
-  if (mode == ParticleMode.WRAP) idx = 1;
-  const activeBtn = group.querySelectorAll('button')[idx];
-  const slider = group.querySelector('.toggle-slider');
-  activeBtn.classList.add('active');
-  slider.style.left = activeBtn.offsetLeft + 'px';
-  slider.style.width = activeBtn.offsetWidth + 'px';
-  if (!isOpen) config.classList.remove('open');
+window.addEventListener('load', () => {
+  // Initialise on page load
+  document.querySelectorAll('.toggle-group').forEach(group => {
+    const isOpen = configContainer.classList.contains('open');
+    if (!isOpen) configContainer.classList.add('open');
+    let idx = 0;
+    if (mode == ParticleMode.WRAP) idx = 1;
+    const activeBtn = group.querySelectorAll('button')[idx];
+    const slider = group.querySelector('.toggle-slider');
+    activeBtn.classList.add('active');
+    slider.style.left = activeBtn.offsetLeft + 'px';
+    slider.style.width = activeBtn.offsetWidth + 'px';
+    if (!isOpen) configContainer.classList.remove('open');
+  });
 });
 
 
@@ -55,17 +57,37 @@ const canvas = document.getElementById('particle-canvas');
 const ctx = canvas.getContext('2d');
 
 let W, H, particles;
-let mouse = { x: -9999, y: -9999 };
 
-const count = 120;
-const radius = 2.5;
-const maxEdgeDist = 120;
-const speed = 1;
-const repel = 90;
-const force = 8;
-const color = '#ef77b5';
-const colorMouse = 'white';
-let colorBackground = '#1f1f1f';
+const config = {
+  particles: {
+    count: 120,
+    radius: 2.5,
+    speed: 1
+  },
+
+  edges: {
+    maxDist: 120,
+  },
+
+  mouse: {
+    x: -9999,
+    y: -9999,
+    repelRadius: 90,
+    repelForce: 8
+  },
+
+  colors: {
+    particle: '#ef77b5',
+    edge: '#ef77b5',
+    mouse: '#ef77b5', //'white',
+    background: '#1f1f1f'
+  },
+
+  // visuals: {
+  //   glow: true,
+  //   trails: false
+  // }
+};
 
 class Particle {
   constructor() {
@@ -75,25 +97,28 @@ class Particle {
   reset() {
     this.x = Math.random() * W;
     this.y = Math.random() * H;
-    this.vx = (Math.random() - 0.5) * speed;
-    this.vy = (Math.random() - 0.5) * speed;
+    this.vxRand = (Math.random() - 0.5);
+    this.vx = this.vxRand * config.particles.speed;
+    this.vyRand = (Math.random() - 0.5);
+    this.vy = this.vyRand * config.particles.speed;
     this.rvx = 0;
     this.rvy = 0;
-    this.color = color;
-    this.radius = (Math.random() * 0.8 + 0.2) * radius;
+    this.color = config.colors.particle;
+    this.radiusRand = (Math.random() * 0.8 + 0.2);
+    this.radius = this.radiusRand * config.particles.radius;
     this.alpha = (Math.random() * 0.8 + 0.2);
   }
 
   update() {
-    const dx = this.x - mouse.x;
-    const dy = this.y - mouse.y;
+    const dx = this.x - config.mouse.x;
+    const dy = this.y - config.mouse.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < repel && dist > 0) {
-      const f = 1 - dist / repel;
+    if (dist < config.mouse.repelRadius && dist > 0) {
+      const f = 1 - dist / config.mouse.repelRadius;
       let dirX = dx / dist;
       let dirY = dy / dist;
-      this.rvx = dirX * f * force;
-      this.rvy = dirY * f * force;
+      this.rvx = dirX * f * config.mouse.repelForce;
+      this.rvy = dirY * f * config.mouse.repelForce;
     }
     this.x += this.vx + this.rvx;
     this.y += this.vy + this.rvy;
@@ -141,36 +166,36 @@ class Particle {
 }
 
 function drawMouse() {
-  useFilter = true;
+  const useFilter = true;
   if (useFilter) {
     // Set the blur intensity
     ctx.filter = 'blur(30px)';
     ctx.globalAlpha = 0.2;
     ctx.beginPath();
-    ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
-    ctx.fillStyle = colorMouse;
+    ctx.arc(config.mouse.x, config.mouse.y, config.mouse.repelRadius / 2, 0, Math.PI * 2);
+    ctx.fillStyle = config.colors.mouse;
     ctx.fill();
 
     ctx.globalAlpha = 1;
     // Reset filter for future drawings
     ctx.filter = 'none';
   } else {
-    ctx.shadowColor = colorMouse;
+    ctx.shadowColor = config.colors.mouse;
 
     ctx.shadowBlur = 40;
     ctx.globalAlpha = 1;
 
     ctx.beginPath();
-    ctx.fillStyle = colorBackground;
-    ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
+    ctx.fillStyle = config.colors.background;
+    ctx.arc(config.mouse.x, config.mouse.y, config.mouse.repelRadius / 2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.shadowBlur = 0;
     ctx.globalAlpha = 0.4;
 
     ctx.beginPath();
-    ctx.fillStyle = colorMouse;
-    ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
+    ctx.fillStyle = config.colors.mouse;
+    ctx.arc(config.mouse.x, config.mouse.y, config.mouse.repelRadius / 2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.globalAlpha = 1;
@@ -182,15 +207,15 @@ function drawMouse() {
 function drawEdges() {
   for (let i = 0; i < particles.length; i++) {
     for (let j = 0; j < particles.length; j++) {
-      dx = Math.abs(particles[i].x - particles[j].x)
-      dy = Math.abs(particles[i].y - particles[j].y)
-      dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < maxEdgeDist) {
-        ctx.globalAlpha = (1 - dist / maxEdgeDist) * 0.15;
+      const dx = Math.abs(particles[i].x - particles[j].x)
+      const dy = Math.abs(particles[i].y - particles[j].y)
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < config.edges.maxDist) {
+        ctx.globalAlpha = (1 - dist / config.edges.maxDist) * 0.15;
         ctx.beginPath();
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = color;
+        ctx.strokeStyle = config.colors.edge;
         ctx.lineWidth = 0.5;
         ctx.stroke();
       }
@@ -216,7 +241,7 @@ function loop() {
 function init() {
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
-  particles = Array.from({ length: count }, () => new Particle());
+  particles = Array.from({ length: config.particles.count }, () => new Particle());
 }
 
 
@@ -224,9 +249,9 @@ init();
 loop();
 
 window.addEventListener('resize', resize);
-canvas.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY });
+canvas.addEventListener('mousemove', (e) => { config.mouse.x = e.clientX; config.mouse.y = e.clientY });
 window.addEventListener('touchmove', (e) => {
-  mouse.x = e.touches[0].clientX;
-  mouse.y = e.touches[0].clientY;
+  config.mouse.x = e.touches[0].clientX;
+  config.mouse.y = e.touches[0].clientY;
 }, { passive: true });
-canvas.addEventListener('mouseleave', (e) => { mouse.x = -9999; mouse.y = -9999 })
+canvas.addEventListener('mouseleave', (e) => { config.mouse.x = -9999; config.mouse.y = -9999 })
