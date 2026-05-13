@@ -386,6 +386,16 @@ main {
   color: var(--muted);
 }
 
+.experiment-bar .openlink {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.experiment-bar .openlink svg {
+  margin-bottom: 2px;
+}
+
 /* --- Divider --------------------------------------------------- */
 .divider {
   border: none;
