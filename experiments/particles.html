@@ -16,6 +16,7 @@
     rel="stylesheet" />
 
   <link rel="stylesheet" href="/assets/css/base.css" />
+
   <style>
     *,
     *::before,
@@ -29,6 +30,7 @@
       margin: 0;
       padding: 0;
       background: #fff;
+      overflow: hidden;
     }
 
     main {
@@ -40,7 +42,8 @@
 
     canvas {
       display: block;
-      background: pink;
+      /* background: rgba(var(--accent-rgb), 0.4); */
+      background: var(--bg3);
       width: 100vw;
       height: 100vh;
     }
@@ -160,6 +163,7 @@
 
     </div>
   </main>
+
   <script>
     /* CONFIGURATION */
     const ParticleMode = {
@@ -225,7 +229,9 @@
     const speed = 1;
     const repel = 90;
     const force = 8;
-    const color = 'black';
+    const color = '#ef77b5';
+    const colorMouse = 'white';
+    let colorBackground = '#1f1f1f';
 
     class Particle {
       constructor() {
@@ -239,7 +245,7 @@
         this.vy = (Math.random() - 0.5) * speed;
         this.rvx = 0;
         this.rvy = 0;
-        this.color = "black";
+        this.color = color;
         this.radius = (Math.random() * 0.8 + 0.2) * radius;
         this.alpha = (Math.random() * 0.8 + 0.2);
       }
@@ -301,16 +307,42 @@
     }
 
     function drawMouse() {
-      // Set the blur intensity
-      ctx.filter = 'blur(30px)';
+      useFilter = true;
+      if (useFilter) {
+        // Set the blur intensity
+        ctx.filter = 'blur(30px)';
+        ctx.globalAlpha = 0.2;
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
+        ctx.fillStyle = colorMouse;
+        ctx.fill();
 
-      ctx.beginPath();
-      ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
-      ctx.fillStyle = "white";
-      ctx.fill();
+        ctx.globalAlpha = 1;
+        // Reset filter for future drawings
+        ctx.filter = 'none';
+      } else {
+        ctx.shadowColor = colorMouse;
 
-      // Reset filter for future drawings
-      ctx.filter = 'none';
+        ctx.shadowBlur = 40;
+        ctx.globalAlpha = 1;
+
+        ctx.beginPath();
+        ctx.fillStyle = colorBackground;
+        ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.4;
+
+        ctx.beginPath();
+        ctx.fillStyle = colorMouse;
+        ctx.arc(mouse.x, mouse.y, repel / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+      }
+
     }
 
     function drawEdges() {
@@ -324,7 +356,7 @@
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = 'black';
+            ctx.strokeStyle = color;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
