@@ -1,0 +1,116 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  overflow: hidden;
+}
+
+main {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+}
+
+canvas {
+  display: block;
+  /* background: rgba(var(--accent-rgb), 0.4); */
+  background: var(--bg3);
+  width: 100vw;
+  height: 100vh;
+}
+
+.configuration {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(1px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2.5rem 1rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  min-width: calc(22px + 2rem);
+  min-height: calc(22px + 2rem);
+  transition: padding var(--transition), opacity var(--transition);
+}
+
+.configuration .config-group {
+  transition: padding var(--transition), opacity var(--transition);
+  display: none;
+  opacity: 0;
+}
+
+.configuration.open {
+  padding-bottom: 1rem;
+}
+
+.configuration.open .config-group {
+  display: flex;
+  opacity: 1;
+}
+
+.config-toggle {
+  position: absolute;
+  display: flex;
+  top: 1rem;
+  left: 1rem;
+  cursor: pointer;
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.config-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.toggle-group {
+  display: inline-flex;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  position: relative;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  width: 75px;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: left var(--transition), width var(--transition);
+  pointer-events: none;
+}
+
+.toggle-group button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color var(--transition);
+}
+
+.toggle-group button.active {
+  color: var(--bg);
+}
