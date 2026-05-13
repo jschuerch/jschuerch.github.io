@@ -2,8 +2,7 @@ import { CanvasEdgeMode } from './config.js';
 
 export function initUI(config) {
 
-  function selectTab(groupId, index, mode) {
-    const group = document.getElementById(groupId);
+  function selectTab(group, index, mode) {
     const buttons = group.querySelectorAll('button');
     const slider = group.querySelector('.toggle-slider');
 
@@ -37,7 +36,7 @@ export function initUI(config) {
       const isOpen = configContainer.classList.contains('open');
       if (!isOpen) configContainer.classList.add('open');
       let idx = 0;
-      if (config.canvasMode == CanvasEdgeMode.WRAP) idx = 1;
+      if (config.canvasMode === CanvasEdgeMode.WRAP) idx = 1;
       const activeBtn = group.querySelectorAll('button')[idx];
       const slider = group.querySelector('.toggle-slider');
       activeBtn.classList.add('active');
@@ -51,7 +50,8 @@ export function initUI(config) {
   buttons.forEach((button, index) => {
 
     button.addEventListener('click', () => {
-      selectTab("theme-toggle", index, button.dataset.mode);
+      let group = button.closest('.toggle-group');
+      selectTab(group, index, button.dataset.mode);
     });
 
   });

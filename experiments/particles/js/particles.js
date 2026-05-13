@@ -5,29 +5,37 @@ export class Particle {
     this.canvas = canvas;
     this.config = config;
 
+    this.generateSeeds();
     this.reset();
   }
 
   reset() {
     this.x = Math.random() * this.canvas.width;
     this.y = Math.random() * this.canvas.height;
-    this.vxRand = (Math.random() - 0.5);
-    this.vx = this.vxRand * this.config.particles.speed;
-    this.vyRand = (Math.random() - 0.5);
-    this.vy = this.vyRand * this.config.particles.speed;
+    this.updateProperties();
     this.rvx = 0;
     this.rvy = 0;
-    this.color = this.config.colors.particle;
-    this.radiusRand = (Math.random() * 0.8 + 0.2);
-    this.radius = this.radiusRand * this.config.particles.radius;
+  }
+
+  generateSeeds() {
+    this.vxSeed = (Math.random() - 0.5);
+    this.vySeed = (Math.random() - 0.5);
+    this.radiusSeed = (Math.random() * 0.8 + 0.2);
     this.alpha = (Math.random() * 0.8 + 0.2);
+  }
+
+  updateProperties() {
+    this.vx = this.vxSeed * this.config.particles.speed;
+    this.vy = this.vySeed * this.config.particles.speed;
+    this.color = this.config.colors.particle;
+    this.radius = this.radiusSeed * this.config.particles.radius;
   }
 
   update() {
     if (this.config.mouse.active) {
       const dx = this.x - this.config.mouse.x;
       const dy = this.y - this.config.mouse.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dist = Math.hypot(dx, dy);
 
       if (dist < this.config.mouse.repelRadius && dist > 0) {
         const f = 1 - dist / this.config.mouse.repelRadius;
@@ -44,7 +52,7 @@ export class Particle {
     this.rvy *= 0.98;
 
     // Keep particles inside the canvas
-    if (this.config.canvasMode == CanvasEdgeMode.BOUNCE) {
+    if (this.config.canvasMode === CanvasEdgeMode.BOUNCE) {
       if (this.x < 0 || this.x > this.canvas.width) {
         this.vx *= -1;
         if (this.x < 0) this.x = 0;
@@ -55,7 +63,7 @@ export class Particle {
         if (this.y < 0) this.y = 0;
         if (this.y > this.canvas.height) this.y = this.canvas.height;
       }
-    } else if (this.config.canvasMode == CanvasEdgeMode.WRAP) {
+    } else if (this.config.canvasMode === CanvasEdgeMode.WRAP) {
       this.wrapParticles();
     }
   }

@@ -15,6 +15,8 @@ function resize() {
   let ratioY = window.innerHeight / canvas.height;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+
+  if (!particles) return;
   particles.forEach((p) => { p.x *= ratioX; p.y *= ratioY; });
 }
 
@@ -40,22 +42,18 @@ loop();
 
 // rendering helpers
 function drawMouse() {
-  if (!config.mouse.active)
-    return;
+  if (!config.mouse.active) return;
+
+  ctx.save();
 
   const useFilter = true;
   if (useFilter) {
-    // Set the blur intensity
     ctx.filter = 'blur(30px)';
     ctx.globalAlpha = 0.2;
     ctx.beginPath();
     ctx.arc(config.mouse.x, config.mouse.y, config.mouse.repelRadius / 2, 0, Math.PI * 2);
     ctx.fillStyle = config.colors.mouse;
     ctx.fill();
-
-    ctx.globalAlpha = 1;
-    // Reset filter for future drawings
-    ctx.filter = 'none';
   } else {
     ctx.shadowColor = config.colors.mouse;
 
@@ -74,25 +72,22 @@ function drawMouse() {
     ctx.fillStyle = config.colors.mouse;
     ctx.arc(config.mouse.x, config.mouse.y, config.mouse.repelRadius / 2, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
   }
 
+  ctx.restore();
 }
 
 function drawEdges() {
-  if (!config.edges.show)
-    return;
+  if (!config.edges.show) return;
 
   ctx.strokeStyle = config.colors.edge;
   ctx.lineWidth = 0.6;
 
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
-      const dx = Math.abs(particles[i].x - particles[j].x)
-      const dy = Math.abs(particles[i].y - particles[j].y)
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.hypot(dx, dy);
       if (dist < config.edges.maxDist) {
         ctx.globalAlpha = (1 - dist / config.edges.maxDist) * 0.15;
         ctx.beginPath();
@@ -109,7 +104,6 @@ function drawEdges() {
 window.addEventListener('resize', resize);
 canvas.addEventListener('mousemove', (e) => { setMousePosition(e.clientX, e.clientY); config.mouse.active = true; });
 window.addEventListener('touchmove', (e) => {
-  config.mouse.x = e.touches[0].clientX;
-  config.mouse.y = e.touches[0].clientY;
+  setMousePosition(e.touches[0].clientX, e.touches[0].clientY); config.mouse.active = true;
 }, { passive: true });
-canvas.addEventListener('mouseleave', (e) => { setMousePosition(-9999, -9999); config.mouse.active = false; })
+canvas.addEventListener('mouseleave', (e) => config.mouse.active = false);

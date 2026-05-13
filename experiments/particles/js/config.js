@@ -18,7 +18,7 @@ export const config = {
   },
 
   mouse: {
-    active: false, // TODO: change stuff to do active/inactive for the mouse thingy
+    active: false,
     x: -9999,
     y: -9999,
     repelRadius: 90,
