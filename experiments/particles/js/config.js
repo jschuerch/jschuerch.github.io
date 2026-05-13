@@ -37,3 +37,8 @@ export const config = {
   //   trails: false
   // }
 };
+
+export function setMousePosition(x, y) {
+  config.mouse.x = x;
+  config.mouse.y = y;
+}
