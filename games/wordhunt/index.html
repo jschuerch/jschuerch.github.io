@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Jenny's Playground</title>
+  <meta name="description" content="Small experiments, projects, and things I'm learning." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="/assets/css/base.css" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <style>
+    :root {
+      --color-gray: #505050;
+      --color-green: #145f15;
+      --color-yellow: #936e00;
+      --color-red: #520e0e;
+    }
+
+    .wordhunt-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .wordhunt-error,
+    .wordhunt-info {
+      position: fixed;
+      display: block;
+      background: var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      top: calc(var(--nav-h) + 1rem);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .wordhunt-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      transform: translateX(-4.5rem);
+    }
+
+    .wordhunt-row {
+      display: contents;
+    }
+
+    .wordhunt-num-correct,
+    .wordhunt-num-present {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wordhunt-num-correct {
+      color: var(--color-green);
+    }
+
+    .wordhunt-num-present {
+      color: var(--color-yellow);
+    }
+
+    .wordhunt-cell {
+      width: 3rem;
+      height: 3rem;
+      border: 2px solid var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .wordhunt-cell.empty {
+      background-color: transparent;
+    }
+
+    .wordhunt-cell.filled {
+      border-color: var(--text);
+    }
+
+    .correct .wordhunt-cell.filled {
+      background-color: var(--color-green);
+      color: #fff;
+    }
+
+    .incorrect .wordhunt-cell.filled {
+      background-color: var(--color-gray);
+      color: #fff;
+    }
+
+    .filled .wordhunt-cell.filled {
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .filled .wordhunt-cell.highlight1 {
+      background-color: var(--color-red);
+    }
+
+    .filled .wordhunt-cell.highlight2 {
+      background-color: var(--color-yellow);
+    }
+
+    .filled .wordhunt-cell.highlight3 {
+      background-color: var(--color-green);
+    }
+
+    .wordhunt-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .wordhunt-container ::selection {
+      background: transparent;
+    }
+
+    .wordhunt-success {
+      margin: 2rem;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ---- Navigation ---- -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <a href="/index.html" class="nav-logo">
+        jenny<span>.</span>miki
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/pages/projects.html">Projects</a></li>
+        <li><a href="/pages/experiments.html">Experiments</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+
+      <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round">
+          <line x1="3" y1="6" x2="19" y2="6" />
+          <line x1="3" y1="11" x2="19" y2="11" />
+          <line x1="3" y1="16" x2="19" y2="16" />
+        </svg>
+      </button>
+
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-wrap">
+
+      <!-- ---- Featured Projects ---- -->
+      <section class="section">
+        <div class="section-header fade-in">
+          <h2>Word hunt</h2>
+          <span class="section-subtitle">Guess the word</span>
+          <p>
+
+          </p>
+        </div>
+
+        <div id="wordhunt-alert">
+          <div class="wordhunt-error">Word not in list</div>
+          <div class="wordhunt-info">You have <span>0</span> correct</div>
+        </div>
+
+        <div class="wordhunt-container fade-in">
+          <div class="wordhunt-grid">
+          </div>
+        </div>
+
+        <div class="wordhunt-success">Congratulations! You guessed the word in <span>1</span>!</div>
+
+        <div class="wordhunt-btn-container fade-in">
+          <div id="new-game-btn" class="btn btn-primary">New Game</div>
+        </div>
+
+
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ---- Footer ---- -->
+  <footer class="footer">
+    <ul class="footer-links">
+      <li><a href="https://github.com/jschuerch" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/jennifer-sch%C3%BCrch-030471100/" target="_blank"
+          rel="noopener">LinkedIn</a></li>
+    </ul>
+
+    <div class="theme-switcher">
+      <a class="theme-btn pink" data-theme="theme-pink"></a>
+      <a class="theme-btn gold" data-theme="theme-gold"></a>
+      <a class="theme-btn blue" data-theme="theme-blue"></a>
+      <a class="theme-btn green" data-theme="theme-green"></a>
+    </div>
+
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="wordhunt.js"></script>
+</body>
+
+</html>
