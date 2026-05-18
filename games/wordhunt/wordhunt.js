@@ -122,6 +122,7 @@ function submit_word() {
         if (guessed_word === targetWord) {
           active_row.classList.add("correct");
           let num_attempts = Array.from(rows).filter(row => row.classList.contains("filled")).length;
+          active_row.classList.remove("filled");
           document.querySelector(".wordhunt-success").querySelector("span").textContent = num_attempts;
           document.querySelector(".wordhunt-success").style.display = "block";
           return;
