@@ -19,12 +19,16 @@
   <style>
     :root {
       --color-gray: #505050;
-      --color-green: #145f15;
-      --color-yellow: #936e00;
       --color-red: #520e0e;
+      --color-orange: #783c0e;
+      --color-yellow: #936e00;
+      --color-green: #145f15;
+      --color-blue: #0e4a78;
+      --color-purple: #4b0e78;
     }
 
-    .wordhunt-controls {
+    .wordhunt-controls,
+    .wordhunt-marker-container {
       display: flex;
       align-items: end;
       justify-content: center;
@@ -33,13 +37,15 @@
       margin: 2rem 0 0;
     }
 
-    .wordhunt-control {
+    .wordhunt-control,
+    .wordhunt-marker {
       display: grid;
       gap: 0.35rem;
       min-width: 9rem;
     }
 
-    .wordhunt-control label {
+    .wordhunt-control label,
+    .wordhunt-marker label {
       color: var(--muted);
       font-family: var(--font-mono);
       font-size: 0.75rem;
@@ -67,6 +73,80 @@
       outline: none;
     }
 
+    .wordhunt-marker-options {
+      display: flex;
+      gap: 0.45rem;
+      min-height: 2.65rem;
+      align-items: center;
+    }
+
+    .wordhunt-marker-btn {
+      width: 2.3rem;
+      height: 2.3rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      padding: 0;
+      transition: border-color var(--transition), transform 120ms ease;
+      background: none;
+      position: relative;
+    }
+
+    .wordhunt-marker-btn:hover,
+    .wordhunt-marker-btn.active {
+      border-color: var(--text);
+    }
+
+    .wordhunt-marker-btn.active {
+      transform: translateY(-1px);
+    }
+
+    .wordhunt-marker-btn[data-highlight="none"]::after {
+      content: "";
+      position: absolute;
+
+      width: 120%;
+      height: 3px;
+
+      background: var(--border);
+
+      top: 50%;
+      left: 50%;
+
+      transform: translate(-50%, -50%) rotate(-45deg);
+      border-radius: 999px;
+      transition: background var(--transition);
+    }
+
+    .wordhunt-marker-btn:hover[data-highlight="none"]::after,
+    .wordhunt-marker-btn.active[data-highlight="none"]::after {
+      background: var(--text);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight1"] {
+      background: var(--color-red);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight2"] {
+      background: var(--color-orange);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight3"] {
+      background: var(--color-yellow);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight4"] {
+      background: var(--color-green);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight5"] {
+      background: var(--color-blue);
+    }
+
+    .wordhunt-marker-btn[data-highlight="highlight6"] {
+      background: var(--color-purple);
+    }
+
     .wordhunt-container {
       display: flex;
       justify-content: center;
@@ -80,12 +160,18 @@
       background: var(--border);
       padding: 0.5rem 1rem;
       border-radius: var(--radius);
-      top: calc(var(--nav-h) + 1rem);
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 100;
+      z-index: 99;
       opacity: 0;
       transition: opacity 0.3s ease;
+    }
+
+    .wordhunt-error.visible,
+    .wordhunt-info.visible {
+      opacity: 1;
+      top: calc(var(--nav-h) + 1rem);
     }
 
     .wordhunt-grid {
@@ -157,11 +243,23 @@
     }
 
     .filled .wordhunt-cell.highlight2 {
-      background-color: var(--color-yellow);
+      background-color: var(--color-orange);
     }
 
     .filled .wordhunt-cell.highlight3 {
+      background-color: var(--color-yellow);
+    }
+
+    .filled .wordhunt-cell.highlight4 {
       background-color: var(--color-green);
+    }
+
+    .filled .wordhunt-cell.highlight5 {
+      background-color: var(--color-blue);
+    }
+
+    .filled .wordhunt-cell.highlight6 {
+      background-color: var(--color-purple);
     }
 
     .wordhunt-btn-container {
@@ -234,21 +332,39 @@
       transform: translateY(1px) scale(0.96);
     }
 
-    .wordhunt-key.key-absent {
+    .wordhunt-key.highlight1 {
       background: var(--color-red);
       border-color: var(--color-red);
       color: #fff;
     }
 
-    .wordhunt-key.key-present {
+    .wordhunt-key.highlight2 {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+      color: #fff;
+    }
+
+    .wordhunt-key.highlight3 {
       background: var(--color-yellow);
       border-color: var(--color-yellow);
       color: #fff;
     }
 
-    .wordhunt-key.key-correct {
+    .wordhunt-key.highlight4 {
       background: var(--color-green);
       border-color: var(--color-green);
+      color: #fff;
+    }
+
+    .wordhunt-key.highlight5 {
+      background: var(--color-blue);
+      border-color: var(--color-blue);
+      color: #fff;
+    }
+
+    .wordhunt-key.highlight6 {
+      background: var(--color-purple);
+      border-color: var(--color-purple);
       color: #fff;
     }
 
@@ -372,6 +488,28 @@
         </div>
 
         <div class="wordhunt-keyboard fade-in" aria-label="Letter tracker"></div>
+
+        <div class="wordhunt-marker-container">
+          <div class="wordhunt-marker fade-in">
+            <label>Marker</label>
+            <div class="wordhunt-marker-options" aria-label="Marker color">
+              <button class="wordhunt-marker-btn active" type="button" data-highlight="none"
+                aria-label="No marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight1"
+                aria-label="Red marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight2"
+                aria-label="Orange marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight3"
+                aria-label="Yellow marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight4"
+                aria-label="Green marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight5"
+                aria-label="Blue marker"></button>
+              <button class="wordhunt-marker-btn" type="button" data-highlight="highlight6"
+                aria-label="Purple marker"></button>
+            </div>
+          </div>
+        </div>
 
         <div class="wordhunt-end"></div>
 

@@ -12,7 +12,9 @@ const game = {
 };
 
 const keyboardRows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
-const keyStateClasses = ["key-absent", "key-present", "key-correct"];
+const highlightClasses = ["none", "highlight1", "highlight2", "highlight3", "highlight4", "highlight5", "highlight6"];
+let selectedHighlightClass = "none";
+let initGameId = 0;
 
 function animateWordhuntResize(updateLayout) {
   const section = document.querySelector(".section");
@@ -50,11 +52,14 @@ function getSelectedGameOptions() {
 }
 
 async function initGame(options = getSelectedGameOptions()) {
+  const currentInitGameId = ++initGameId;
   const { wordLength, unlimitedGuesses, maxGuesses } = options;
   const suffix = `${wordLength}letters`;
   const validWords = await fetch(`data/valid_words_${suffix}.json`).then(r => r.json());
 
   const answerWords = await fetch(`data/answer_words_${suffix}.json`).then(r => r.json());
+  // In case the game was restarted while the async operations were still pending, skip
+  if (currentInitGameId !== initGameId) return;
 
   game.validWords = new Set(validWords);
   game.answerWords = answerWords;
@@ -190,10 +195,10 @@ function showError(message) {
   const error = document.querySelector(".wordhunt-error");
 
   error.textContent = message;
-  error.style.opacity = 1;
+  error.classList.add("visible");
 
   setTimeout(() => {
-    error.style.opacity = 0;
+    error.classList.remove("visible");
   }, 2000);
 }
 
@@ -201,10 +206,10 @@ function showInfo(correct, present) {
   const info = document.querySelector(".wordhunt-info");
 
   info.textContent = "You have " + correct + " correct and " + present + " misplaced letters.";
-  info.style.opacity = 1;
+  info.classList.add("visible");
 
   setTimeout(() => {
-    info.style.opacity = 0;
+    info.classList.remove("visible");
   }, 2000);
 }
 
@@ -226,13 +231,13 @@ function buildKeyboard() {
       key.setAttribute("aria-label", `${letter.toUpperCase()} letter marker`);
 
       key.addEventListener("click", () => {
-        cycleKeyState(key);
+        toggleSelectedHighlight(key);
         key.blur();
       });
 
       key.addEventListener("contextmenu", event => {
         event.preventDefault();
-        clearKeyState(key);
+        clearHighlight(key);
         key.blur();
       });
 
@@ -244,26 +249,50 @@ function buildKeyboard() {
 }
 
 function resetKeyboard() {
-  document.querySelectorAll(".wordhunt-key").forEach(clearKeyState);
+  document.querySelectorAll(".wordhunt-key").forEach(clearHighlight);
 }
 
-function clearKeyState(key) {
-  key.classList.remove(...keyStateClasses);
+function clearHighlight(element) {
+  element.classList.remove(...highlightClasses);
 }
 
-function cycleKeyState(key) {
-  const currentState = keyStateClasses.find(stateClass => key.classList.contains(stateClass));
-  clearKeyState(key);
-
-  if (!currentState) {
-    key.classList.add(keyStateClasses[0]);
-    return;
+function toggleSelectedHighlight(element) {
+  const containsClass = element.classList.contains(selectedHighlightClass);
+  clearHighlight(element);
+  if (containsClass) return;
+  element.classList.add(selectedHighlightClass);
+  if (selectedHighlightClass === "highlight1") {
+    let letter;
+    if (element.classList.contains("wordhunt-key")) {
+      letter = element.dataset.key;
+    } else if (element.classList.contains("wordhunt-cell")) {
+      letter = element.textContent.toLowerCase();
+    }
+    if (letter) {
+      propagateHighlight(letter, "highlight1");
+    }
   }
+}
 
-  const nextState = keyStateClasses[keyStateClasses.indexOf(currentState) + 1];
-  if (nextState) {
-    key.classList.add(nextState);
-  }
+function propagateHighlight(letter, highlightClass) {
+  document.querySelectorAll(`.wordhunt-key[data-key="${letter}"]`).forEach(key => {
+    key.classList.remove(...highlightClasses);
+    key.classList.add(highlightClass);
+  });
+
+  document.querySelectorAll(".wordhunt-cell.filled").forEach(cell => {
+    if (cell.textContent.toLowerCase() === letter) {
+      cell.classList.remove(...highlightClasses);
+      cell.classList.add(highlightClass);
+    }
+  });
+}
+
+function selectHighlight(highlightClass) {
+  selectedHighlightClass = highlightClass;
+  document.querySelectorAll(".wordhunt-marker-btn").forEach(button => {
+    button.classList.toggle("active", button.dataset.highlight === highlightClass);
+  });
 }
 
 function flashKey(letter) {
@@ -333,12 +362,12 @@ function submitWord() {
   // add click event listener to toggle the cell state
   filledCells.forEach(cell => {
     cell.addEventListener("click", () => {
-      toggle_cell(cell);
+      toggleSelectedHighlight(cell);
     });
     cell.addEventListener('contextmenu', (event) => {
       // Prevent the default browser menu from appearing
       event.preventDefault();
-      toggle_cell(cell, true);
+      clearHighlight(cell);
     });
   });
 
@@ -373,30 +402,15 @@ function submitWord() {
   }
 }
 
-function toggle_cell(cell, isRightClick = false) {
-  if (isRightClick) {
-    cell.classList.remove("highlight1", "highlight2", "highlight3");
-    return;
-  }
-
-  if (cell.classList.contains("highlight1")) {
-    cell.classList.remove("highlight1");
-    cell.classList.add("highlight2");
-  } else if (cell.classList.contains("highlight2")) {
-    cell.classList.remove("highlight2");
-    cell.classList.add("highlight3");
-  } else if (cell.classList.contains("highlight3")) {
-    cell.classList.remove("highlight3");
-  } else {
-    cell.classList.add("highlight1");
-  }
-}
-
 // event listener to add or remove letters on the active wordhunt row
 document.addEventListener("keydown", (event) => {
   const target = event.target;
   if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
-  if (target.tagName === "BUTTON" && !target.classList.contains("wordhunt-key")) return;
+  if (
+    target.tagName === "BUTTON" &&
+    !target.classList.contains("wordhunt-key") &&
+    !target.classList.contains("wordhunt-marker-btn")
+  ) return;
   if (game.isGameOver) return;
 
   if (event.key === "Backspace") {
@@ -443,6 +457,13 @@ new_game_btn.addEventListener("click", () => {
 give_up_btn.addEventListener("click", () => {
   give_up_btn.blur();
   giveUp();
+});
+
+document.querySelectorAll(".wordhunt-marker-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    selectHighlight(button.dataset.highlight);
+    button.blur();
+  });
 });
 
 document.getElementById("word-length-select").addEventListener("change", (event) => {
