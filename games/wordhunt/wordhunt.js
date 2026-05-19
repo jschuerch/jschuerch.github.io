@@ -6,14 +6,55 @@ const game = {
   currentGuess: "",
   isGameOver: false,
 
-  UnlimitedGuesses: true,
+  wordLength: 5,
+  unlimitedGuesses: true,
   maxGuesses: 10,
 };
 
-async function initGame(unlimitedGuesses = true, maxGuesses = 10) {
-  const validWords = await fetch("data/valid_words.json").then(r => r.json());
+const keyboardRows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+const keyStateClasses = ["key-absent", "key-present", "key-correct"];
 
-  const answerWords = await fetch("data/answer_words.json").then(r => r.json());
+function animateWordhuntResize(updateLayout) {
+  const section = document.querySelector(".section");
+  const startHeight = section.offsetHeight;
+
+  section.style.height = `${startHeight}px`;
+  section.style.overflow = "hidden";
+
+  updateLayout();
+
+  const endHeight = section.scrollHeight;
+  section.style.transition = "height 360ms ease";
+
+  requestAnimationFrame(() => {
+    section.style.height = `${endHeight}px`;
+  });
+
+  setTimeout(() => {
+    section.style.height = "";
+    section.style.overflow = "";
+    section.style.transition = "";
+  }, 380);
+}
+
+function getSelectedGameOptions() {
+  const wordLengthSelect = document.getElementById("word-length-select");
+  const triesSelect = document.getElementById("tries-select");
+  const triesValue = triesSelect?.value || "unlimited";
+
+  return {
+    wordLength: Number(wordLengthSelect?.value || game.wordLength),
+    unlimitedGuesses: triesValue === "unlimited",
+    maxGuesses: triesValue === "unlimited" ? game.maxGuesses : Number(triesValue),
+  };
+}
+
+async function initGame(options = getSelectedGameOptions()) {
+  const { wordLength, unlimitedGuesses, maxGuesses } = options;
+  const suffix = `${wordLength}letters`;
+  const validWords = await fetch(`data/valid_words_${suffix}.json`).then(r => r.json());
+
+  const answerWords = await fetch(`data/answer_words_${suffix}.json`).then(r => r.json());
 
   game.validWords = new Set(validWords);
   game.answerWords = answerWords;
@@ -22,13 +63,18 @@ async function initGame(unlimitedGuesses = true, maxGuesses = 10) {
   game.guesses = [];
   game.currentGuess = "";
   game.isGameOver = false;
-  game.UnlimitedGuesses = unlimitedGuesses;
+  game.wordLength = wordLength;
+  game.unlimitedGuesses = unlimitedGuesses;
   game.maxGuesses = maxGuesses;
 
   console.log("Target:", game.targetWord);
 
-  document.querySelector(".wordhunt-grid").innerHTML = "";
-  document.querySelector(".wordhunt-end").style.display = "none";
+  const grid = document.querySelector(".wordhunt-grid");
+  grid.innerHTML = "";
+  grid.style.gridTemplateColumns = `repeat(${wordLength + 2}, 1fr)`;
+
+  document.querySelector(".wordhunt-end").classList.remove("visible");
+  // resetKeyboard();
 
   addRow(true);
 
@@ -51,7 +97,7 @@ function addRow(isActive = false) {
     <div class="wordhunt-num-correct"></div>
     <div class="wordhunt-num-present"></div>
 
-    ${Array.from({ length: 5 })
+    ${Array.from({ length: game.wordLength })
       .map((_, i) => `
         <div 
           class="wordhunt-cell empty"
@@ -106,11 +152,11 @@ function evaluateGuess(guess, target) {
   let correct = 0;
   let present = 0;
 
-  let usedTarget = Array(5).fill(false);
-  let usedGuess = Array(5).fill(false);
+  let usedTarget = Array(game.wordLength).fill(false);
+  let usedGuess = Array(game.wordLength).fill(false);
 
   // Check for exact matches
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < game.wordLength; i++) {
     if (guess[i] === target[i]) {
       correct++;
 
@@ -120,10 +166,10 @@ function evaluateGuess(guess, target) {
   }
 
   // Check for misplaced matches
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < game.wordLength; i++) {
     if (usedGuess[i]) continue;
 
-    for (let j = 0; j < 5; j++) {
+    for (let j = 0; j < game.wordLength; j++) {
       if (usedTarget[j]) continue;
 
       if (guess[i] === target[j]) {
@@ -162,6 +208,7 @@ function showInfo(correct, present) {
   }, 2000);
 }
 
+
 function endGame(row, success) {
   game.isGameOver = true;
   const div = document.querySelector(".wordhunt-end");
@@ -172,20 +219,34 @@ function endGame(row, success) {
     row.classList.add("incorrect");
     div.textContent = 'Sorry, you failed to guess the word. The word was ' + game.targetWord + '.';
   }
-  div.style.display = "block";
+  div.classList.add("visible");
+}
+
+function giveUp() {
+  if (game.isGameOver) return;
+
+  const row = getActiveRow();
+  if (row) {
+    row.classList.remove("active");
+    row.classList.add("incorrect");
+  }
+
+  game.isGameOver = true;
+  const div = document.querySelector(".wordhunt-end");
+  div.textContent = 'The word was ' + game.targetWord + '.';
+  div.classList.add("visible");
 }
 
 function submitWord() {
   if (game.isGameOver) return;
 
-  const rows = document.querySelectorAll(".wordhunt-row");
   const row = getActiveRow();
 
   if (!row) return;
 
   const filledCells = row.querySelectorAll(".wordhunt-cell.filled");
 
-  if (filledCells.length !== 5) return;
+  if (filledCells.length !== game.wordLength) return;
 
   const guess = getGuessFromRow(row);
 
@@ -215,7 +276,9 @@ function submitWord() {
   });
 
   if (guess === game.targetWord) {
-    endGame(row, true);
+    animateWordhuntResize(() => {
+      endGame(row, true);
+    });
     return;
   }
 
@@ -226,16 +289,20 @@ function submitWord() {
 
   showInfo(result.correct, result.present);
 
-  if (game.UnlimitedGuesses || game.guesses.length < game.maxGuesses) {
+  if (game.unlimitedGuesses || game.guesses.length < game.maxGuesses) {
 
     let nextRow = row.nextElementSibling;
     if (!nextRow) {
-      addRow(true);
+      animateWordhuntResize(() => {
+        addRow(true);
+      });
     } else {
       nextRow.classList.add("active");
     }
   } else {
-    endGame(row, false);
+    animateWordhuntResize(() => {
+      endGame(row, false);
+    });
   }
 }
 
@@ -263,8 +330,10 @@ document.addEventListener("keydown", (event) => {
   if (game.isGameOver) return;
 
   if (event.key === "Backspace") {
+    event.preventDefault();
     removeLetter();
   } else if (event.key === "Enter") {
+    event.preventDefault();
     submitWord();
   } else if (/^[a-zA-Z]$/.test(event.key)) {
     addLetter(event.key.toLowerCase());
@@ -272,19 +341,47 @@ document.addEventListener("keydown", (event) => {
 });
 
 const new_game_btn = document.getElementById("new-game-btn");
+const give_up_btn = document.getElementById("give-up-btn");
+const gameTransitionElements = [
+  ".wordhunt-container",
+  ".wordhunt-keyboard",
+];
 
-new_game_btn.addEventListener("click", () => {
-  document.querySelector(".wordhunt-container").classList.remove("visible");
-  document.querySelector(".wordhunt-btn-container").classList.remove("visible");
+function setGameTransitionVisible(isVisible) {
+  gameTransitionElements.forEach(selector => {
+    document.querySelector(selector).classList.toggle("visible", isVisible);
+  });
+}
 
+function restartGameWithFade() {
+  setGameTransitionVisible(false);
   setTimeout(() => {
     initGame();
-  }, 200);
+  }, 500);
 
   setTimeout(() => {
-    document.querySelector(".wordhunt-container").classList.add("visible");
-    document.querySelector(".wordhunt-btn-container").classList.add("visible");
+    setGameTransitionVisible(true);
   }, 500);
+}
+
+new_game_btn.addEventListener("click", () => {
+  new_game_btn.blur();
+  restartGameWithFade();
+});
+
+give_up_btn.addEventListener("click", () => {
+  give_up_btn.blur();
+  giveUp();
+});
+
+document.getElementById("word-length-select").addEventListener("change", (event) => {
+  event.target.blur();
+  restartGameWithFade();
+});
+
+document.getElementById("tries-select").addEventListener("change", (event) => {
+  event.target.blur();
+  restartGameWithFade();
 });
 
 initGame();
