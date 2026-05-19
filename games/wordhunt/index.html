@@ -215,12 +215,18 @@
       text-transform: uppercase;
     }
 
+    .wordhunt-cell.same-letter-hover,
+    .wordhunt-cell.filled.same-letter-hover,
+    .wordhunt-key.same-letter-hover {
+      border-color: var(--text);
+    }
+
     .wordhunt-cell.empty {
       background-color: transparent;
     }
 
     .wordhunt-cell.filled {
-      border-color: var(--text);
+      border-color: var(--muted);
     }
 
     .correct .wordhunt-cell.filled {
@@ -231,6 +237,11 @@
     .incorrect .wordhunt-cell.filled {
       background-color: var(--color-gray);
       color: #fff;
+    }
+
+    .active .wordhunt-cell,
+    .active .wordhunt-cell.filled {
+      border-color: var(--text);
     }
 
     .filled .wordhunt-cell.filled {
@@ -457,6 +468,9 @@
             <li>
               The <strong>red marker</strong> automatically propagates to all matching letters and is useful for marking
               letters that are definitely not in the word
+            </li>
+            <li>
+              Hold <strong>Shift</strong> while marking to propagate any marker color to all matching letters
             </li>
           </ul>
         </div>

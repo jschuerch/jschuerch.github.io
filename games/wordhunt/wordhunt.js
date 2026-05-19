@@ -230,8 +230,8 @@ function buildKeyboard() {
       key.tabIndex = -1;
       key.setAttribute("aria-label", `${letter.toUpperCase()} letter marker`);
 
-      key.addEventListener("click", () => {
-        toggleSelectedHighlight(key);
+      key.addEventListener("click", (event) => {
+        toggleSelectedHighlight(key, event.shiftKey);
         key.blur();
       });
 
@@ -239,6 +239,14 @@ function buildKeyboard() {
         event.preventDefault();
         clearHighlight(key);
         key.blur();
+      });
+
+      key.addEventListener("mouseenter", () => {
+        setLetterHover(key.dataset.key, true);
+      });
+
+      key.addEventListener("mouseleave", () => {
+        setLetterHover(key.dataset.key, false);
       });
 
       row.appendChild(key);
@@ -256,12 +264,12 @@ function clearHighlight(element) {
   element.classList.remove(...highlightClasses);
 }
 
-function toggleSelectedHighlight(element) {
+function toggleSelectedHighlight(element, propagateToCells = false) {
   const containsClass = element.classList.contains(selectedHighlightClass);
   clearHighlight(element);
   if (containsClass) return;
   element.classList.add(selectedHighlightClass);
-  if (selectedHighlightClass === "highlight1") {
+  if (selectedHighlightClass === "highlight1" || propagateToCells) {
     let letter;
     if (element.classList.contains("wordhunt-key")) {
       letter = element.dataset.key;
@@ -269,7 +277,7 @@ function toggleSelectedHighlight(element) {
       letter = element.textContent.toLowerCase();
     }
     if (letter) {
-      propagateHighlight(letter, "highlight1");
+      propagateHighlight(letter, selectedHighlightClass);
     }
   }
 }
@@ -292,6 +300,18 @@ function selectHighlight(highlightClass) {
   selectedHighlightClass = highlightClass;
   document.querySelectorAll(".wordhunt-marker-btn").forEach(button => {
     button.classList.toggle("active", button.dataset.highlight === highlightClass);
+  });
+}
+
+function setLetterHover(letter, isActive) {
+  document.querySelectorAll(".wordhunt-cell.filled").forEach(cell => {
+    if (cell.textContent.toLowerCase() === letter) {
+      cell.classList.toggle("same-letter-hover", isActive);
+    }
+  });
+
+  document.querySelectorAll(`.wordhunt-key[data-key="${letter}"]`).forEach(key => {
+    key.classList.toggle("same-letter-hover", isActive);
   });
 }
 
@@ -361,13 +381,19 @@ function submitWord() {
 
   // add click event listener to toggle the cell state
   filledCells.forEach(cell => {
-    cell.addEventListener("click", () => {
-      toggleSelectedHighlight(cell);
+    cell.addEventListener("click", (event) => {
+      toggleSelectedHighlight(cell, event.shiftKey);
     });
     cell.addEventListener('contextmenu', (event) => {
       // Prevent the default browser menu from appearing
       event.preventDefault();
       clearHighlight(cell);
+    });
+    cell.addEventListener("mouseenter", () => {
+      setLetterHover(cell.textContent.toLowerCase(), true);
+    });
+    cell.addEventListener("mouseleave", () => {
+      setLetterHover(cell.textContent.toLowerCase(), false);
     });
   });
 
@@ -394,6 +420,11 @@ function submitWord() {
       });
     } else {
       nextRow.classList.add("active");
+      if (!nextRow.nextElementSibling) {
+        animateWordhuntResize(() => {
+          addRow();
+        });
+      }
     }
   } else {
     animateWordhuntResize(() => {
