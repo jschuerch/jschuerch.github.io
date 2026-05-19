@@ -383,6 +383,15 @@
       color: #fff;
     }
 
+    .wordhunt-controls,
+    .wordhunt-container,
+    .wordhunt-keyboard,
+    .wordhunt-marker-container,
+    .wordhunt-btn-container,
+    button {
+      touch-action: manipulation;
+    }
+
     @media (max-width: 560px) {
       .wordhunt-cell {
         width: 2.45rem;
@@ -395,9 +404,17 @@
         font-size: 1rem;
       }
 
+      /* .wordhunt-key {
+        flex: 1 1 0;
+        font-size: 0.78rem;
+        min-width: 0;
+      } */
       .wordhunt-keyboard {
         margin: 2rem -1.5rem 0;
       }
+    }
+
+    @media (max-width: 380px) {
 
       .wordhunt-keyboard-row {
         gap: 0.15rem;
@@ -407,11 +424,6 @@
         height: 2.85rem;
       }
 
-      /* .wordhunt-key {
-        flex: 1 1 0;
-        font-size: 0.78rem;
-        min-width: 0;
-      } */
     }
   </style>
 </head>
