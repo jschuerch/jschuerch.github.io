@@ -74,7 +74,7 @@ async function initGame(options = getSelectedGameOptions()) {
   grid.style.gridTemplateColumns = `repeat(${wordLength + 2}, 1fr)`;
 
   document.querySelector(".wordhunt-end").classList.remove("visible");
-  // resetKeyboard();
+  resetKeyboard();
 
   addRow(true);
 
@@ -208,6 +208,73 @@ function showInfo(correct, present) {
   }, 2000);
 }
 
+function buildKeyboard() {
+  const keyboard = document.querySelector(".wordhunt-keyboard");
+  keyboard.innerHTML = "";
+
+  keyboardRows.forEach(rowLetters => {
+    const row = document.createElement("div");
+    row.classList.add("wordhunt-keyboard-row");
+
+    rowLetters.split("").forEach(letter => {
+      const key = document.createElement("button");
+      key.type = "button";
+      key.classList.add("wordhunt-key");
+      key.dataset.key = letter;
+      key.textContent = letter;
+      key.tabIndex = -1;
+      key.setAttribute("aria-label", `${letter.toUpperCase()} letter marker`);
+
+      key.addEventListener("click", () => {
+        cycleKeyState(key);
+        key.blur();
+      });
+
+      key.addEventListener("contextmenu", event => {
+        event.preventDefault();
+        clearKeyState(key);
+        key.blur();
+      });
+
+      row.appendChild(key);
+    });
+
+    keyboard.appendChild(row);
+  });
+}
+
+function resetKeyboard() {
+  document.querySelectorAll(".wordhunt-key").forEach(clearKeyState);
+}
+
+function clearKeyState(key) {
+  key.classList.remove(...keyStateClasses);
+}
+
+function cycleKeyState(key) {
+  const currentState = keyStateClasses.find(stateClass => key.classList.contains(stateClass));
+  clearKeyState(key);
+
+  if (!currentState) {
+    key.classList.add(keyStateClasses[0]);
+    return;
+  }
+
+  const nextState = keyStateClasses[keyStateClasses.indexOf(currentState) + 1];
+  if (nextState) {
+    key.classList.add(nextState);
+  }
+}
+
+function flashKey(letter) {
+  const key = document.querySelector(`.wordhunt-key[data-key="${letter.toLowerCase()}"]`);
+  if (!key) return;
+
+  key.classList.add("pressed");
+  setTimeout(() => {
+    key.classList.remove("pressed");
+  }, 120);
+}
 
 function endGame(row, success) {
   game.isGameOver = true;
@@ -327,6 +394,9 @@ function toggle_cell(cell, isRightClick = false) {
 
 // event listener to add or remove letters on the active wordhunt row
 document.addEventListener("keydown", (event) => {
+  const target = event.target;
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+  if (target.tagName === "BUTTON" && !target.classList.contains("wordhunt-key")) return;
   if (game.isGameOver) return;
 
   if (event.key === "Backspace") {
@@ -336,6 +406,7 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     submitWord();
   } else if (/^[a-zA-Z]$/.test(event.key)) {
+    flashKey(event.key);
     addLetter(event.key.toLowerCase());
   }
 });
@@ -384,4 +455,5 @@ document.getElementById("tries-select").addEventListener("change", (event) => {
   restartGameWithFade();
 });
 
+buildKeyboard();
 initGame();
