@@ -24,6 +24,49 @@
       --color-red: #520e0e;
     }
 
+    .wordhunt-controls {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 2rem 0 0;
+    }
+
+    .wordhunt-control {
+      display: grid;
+      gap: 0.35rem;
+      min-width: 9rem;
+    }
+
+    .wordhunt-control label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .wordhunt-control select {
+      appearance: none;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      min-height: 2.65rem;
+      padding: 0.55rem 2.2rem 0.55rem 0.75rem;
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .wordhunt-control select:hover,
+    .wordhunt-control select:focus {
+      background: var(--bg3);
+      border-color: var(--muted);
+      outline: none;
+    }
+
     .wordhunt-container {
       display: flex;
       justify-content: center;
@@ -49,7 +92,7 @@
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 0.5rem;
-      transform: translateX(-4.5rem);
+      /* transform: translateX(-4.5rem); */
     }
 
     .wordhunt-row {
@@ -123,8 +166,9 @@
 
     .wordhunt-btn-container {
       display: flex;
+      align-items: center;
+      gap: 0.75rem;
       justify-content: center;
-      margin-top: 2rem;
     }
 
     .wordhunt-container ::selection {
@@ -132,9 +176,99 @@
     }
 
     .wordhunt-end {
-      margin: 2rem;
+      max-height: 0;
+      margin: 0 2rem;
+      opacity: 0;
+      overflow: hidden;
       text-align: center;
-      display: none;
+      transform: translateY(-0.35rem);
+      transition: max-height 360ms ease, margin 360ms ease, opacity 260ms ease, transform 360ms ease, translateY 360ms ease;
+    }
+
+    .wordhunt-end.visible {
+      max-height: 5rem;
+      margin: 2rem;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .wordhunt-keyboard {
+      display: grid;
+      gap: 0.45rem;
+      justify-items: center;
+      margin: 2rem auto 0;
+      max-width: 38rem;
+    }
+
+    .wordhunt-keyboard-row {
+      display: flex;
+      gap: 0.35rem;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .wordhunt-key {
+      align-items: center;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      height: 2.35rem;
+      justify-content: center;
+      min-width: 2rem;
+      text-transform: uppercase;
+      transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform 120ms ease;
+      user-select: none;
+    }
+
+    .wordhunt-key:hover {
+      border-color: var(--muted);
+    }
+
+    .wordhunt-key.pressed {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .wordhunt-key.key-absent {
+      background: var(--color-red);
+      border-color: var(--color-red);
+      color: #fff;
+    }
+
+    .wordhunt-key.key-present {
+      background: var(--color-yellow);
+      border-color: var(--color-yellow);
+      color: #fff;
+    }
+
+    .wordhunt-key.key-correct {
+      background: var(--color-green);
+      border-color: var(--color-green);
+      color: #fff;
+    }
+
+    @media (max-width: 560px) {
+      .wordhunt-cell {
+        width: 2.45rem;
+        height: 2.45rem;
+        font-size: 1.25rem;
+      }
+
+      .wordhunt-num-correct,
+      .wordhunt-num-present {
+        font-size: 1rem;
+      }
+
+      .wordhunt-key {
+        flex: 1 1 0;
+        font-size: 0.78rem;
+        min-width: 0;
+      }
     }
   </style>
 </head>
@@ -184,7 +318,7 @@
           </p>
 
           <p>
-            Guess the hidden five-letter word. After each guess:
+            Guess the hidden word. After each guess:
           </p>
 
           <ul>
@@ -201,6 +335,32 @@
           </p>
         </div>
 
+        <div class="wordhunt-controls fade-in">
+          <div class="wordhunt-control">
+            <label for="word-length-select">Word length</label>
+            <select id="word-length-select">
+              <option value="4" selected>4 letters</option>
+              <option value="5">5 letters</option>
+            </select>
+          </div>
+
+          <div class="wordhunt-control">
+            <label for="tries-select">Tries</label>
+            <select id="tries-select">
+              <option value="unlimited" selected>Unlimited</option>
+              <option value="6">6 tries</option>
+              <option value="8">8 tries</option>
+              <option value="10">10 tries</option>
+              <option value="12">12 tries</option>
+            </select>
+          </div>
+
+          <div class="wordhunt-btn-container">
+            <button id="new-game-btn" class="btn btn-primary" type="button">New Game</button>
+            <button id="give-up-btn" class="btn btn-outline" type="button">Give Up</button>
+          </div>
+        </div>
+
         <div id="wordhunt-alert">
           <div class="wordhunt-error">Word not in list</div>
           <div class="wordhunt-info">You have <span>0</span> correct</div>
@@ -211,13 +371,9 @@
           </div>
         </div>
 
+        <div class="wordhunt-keyboard fade-in" aria-label="Letter tracker"></div>
+
         <div class="wordhunt-end"></div>
-
-        <div class="wordhunt-btn-container fade-in">
-          <div id="new-game-btn" class="btn btn-primary">New Game</div>
-        </div>
-
-
 
       </section>
 
