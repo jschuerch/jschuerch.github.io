@@ -231,7 +231,13 @@ function buildKeyboard() {
       key.setAttribute("aria-label", `${letter.toUpperCase()} letter marker`);
 
       key.addEventListener("click", (event) => {
-        toggleSelectedHighlight(key, event.shiftKey);
+        if (selectedHighlightClass === "none") {
+          // press the key if no highlight is selected
+          flashKey(letter);
+          addLetter(letter);
+        } else {
+          toggleSelectedHighlight(key, event.shiftKey);
+        }
         key.blur();
       });
 
@@ -254,6 +260,41 @@ function buildKeyboard() {
 
     keyboard.appendChild(row);
   });
+
+  const row = document.createElement("div");
+  row.classList.add("wordhunt-keyboard-row");
+
+  const enterKey = document.createElement("button");
+  enterKey.type = "button";
+  enterKey.classList.add("wordhunt-key", "wordhunt-action-key");
+  enterKey.dataset.key = "enter";
+  enterKey.textContent = "Enter";
+  enterKey.tabIndex = -1;
+  enterKey.setAttribute("aria-label", "Enter key");
+
+  enterKey.addEventListener("click", (event) => {
+    submitWord();
+    enterKey.blur();
+  });
+  row.appendChild(enterKey);
+
+  const backspaceKey = document.createElement("button");
+  backspaceKey.type = "button";
+  backspaceKey.classList.add("wordhunt-key", "wordhunt-action-key");
+  backspaceKey.dataset.key = "backspace";
+  backspaceKey.textContent = "Backspace";
+  backspaceKey.tabIndex = -1;
+  backspaceKey.setAttribute("aria-label", "Backspace key");
+
+  backspaceKey.addEventListener("click", (event) => {
+    removeLetter();
+    backspaceKey.blur();
+  });
+
+  row.appendChild(backspaceKey);
+  row.appendChild(enterKey);
+
+  keyboard.appendChild(row);
 }
 
 function resetKeyboard() {
