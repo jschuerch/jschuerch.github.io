@@ -52,16 +52,23 @@ new_game_btn = document.getElementById("new-game-btn");
 new_game_btn.addEventListener("click", () => {
   document.querySelector(".wordhunt-container").classList.remove("visible");
   document.querySelector(".wordhunt-btn-container").classList.remove("visible");
+
   setTimeout(() => {
     wordhunt_init();
   }, 200);
+
   setTimeout(() => {
     document.querySelector(".wordhunt-container").classList.add("visible");
     document.querySelector(".wordhunt-btn-container").classList.add("visible");
   }, 500);
 });
 
-function toggle_cell(cell) {
+function toggle_cell(cell, isRightClick = false) {
+  if (isRightClick) {
+    cell.classList.remove("highlight1", "highlight2", "highlight3");
+    return;
+  }
+
   if (cell.classList.contains("highlight1")) {
     cell.classList.remove("highlight1");
     cell.classList.add("highlight2");
@@ -117,6 +124,11 @@ function submit_word() {
         filled_cells.forEach(cell => {
           cell.addEventListener("click", () => {
             toggle_cell(cell);
+          });
+          cell.addEventListener('contextmenu', (event) => {
+            // Prevent the default browser menu from appearing
+            event.preventDefault();
+            toggle_cell(cell, true);
           });
         });
         if (guessed_word === targetWord) {
