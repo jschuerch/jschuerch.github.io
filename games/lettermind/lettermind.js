@@ -106,7 +106,6 @@ function addRow(isActive = false) {
       .map((_, i) => `
         <div 
           class="lettermind-cell empty"
-          style="animation-delay: ${i * 100}ms;"
         ></div>
       `)
       .join("")}
@@ -414,6 +413,11 @@ function submitWord() {
 
   if (!game.validWords.has(guess)) {
     row.classList.add("incorrect");
+    row.classList.add("shake");
+
+    setTimeout(() => {
+      row.classList.remove("shake");
+    }, 320);
 
     showError("Word not in list!");
 
