@@ -331,6 +331,11 @@ function propagateHighlight(letter, highlightClass) {
 
   document.querySelectorAll(".wordhunt-cell.filled").forEach(cell => {
     if (cell.textContent.toLowerCase() === letter) {
+      const hasHighlight = highlightClasses.some(cls =>
+        cls !== "none" && cell.classList.contains(cls)
+      );
+      if (hasHighlight) return;
+
       cell.classList.remove(...highlightClasses);
       cell.classList.add(highlightClass);
     }
