@@ -35,27 +35,36 @@ canvas {
   backdrop-filter: blur(1px);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 2.5rem 1rem 0;
+  padding: 2.5rem 1rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   min-width: calc(22px + 2rem);
   min-height: calc(22px + 2rem);
-  transition: padding var(--transition), opacity var(--transition);
+  transition: opacity var(--transition);
 }
 
 .configuration .config-group {
-  transition: padding var(--transition), opacity var(--transition);
-  display: none;
   opacity: 0;
+  max-height: 0;
+  max-width: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--transition),
+    max-height var(--transition) 200ms,
+    max-width var(--transition) 200ms;
 }
 
-.configuration.open {
-  padding-bottom: 1rem;
-}
 
 .configuration.open .config-group {
-  display: flex;
   opacity: 1;
+  max-height: 100vh;
+  max-width: 100vw;
+  pointer-events: auto;
+  transition:
+    opacity var(--transition) 200ms,
+    max-height var(--transition),
+    max-width var(--transition);
 }
 
 .config-toggle {
