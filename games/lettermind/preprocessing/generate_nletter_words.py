@@ -5,7 +5,7 @@ import argparse
 
 url = "https://raw.githubusercontent.com/dwyl/english-words/refs/heads/master/words_dictionary.json"
 
-parser = argparse.ArgumentParser(description="Generate valid and answer words for Word Hunt")
+parser = argparse.ArgumentParser(description="Generate valid and answer word lists")
 parser.add_argument("-l", "--length", type=int, default=4, help="Length of words to generate")
 parser.add_argument("-f", "--frequency", type=int, default=4, help="Minimum frequency threshold")
 

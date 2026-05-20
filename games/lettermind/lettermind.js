@@ -16,7 +16,7 @@ const highlightClasses = ["none", "highlight1", "highlight2", "highlight3", "hig
 let selectedHighlightClass = "none";
 let initGameId = 0;
 
-function animateWordhuntResize(updateLayout) {
+function animateLettermindResize(updateLayout) {
   const section = document.querySelector(".section");
   const startHeight = section.offsetHeight;
 
@@ -74,11 +74,11 @@ async function initGame(options = getSelectedGameOptions()) {
 
   console.log("Target:", game.targetWord);
 
-  const grid = document.querySelector(".wordhunt-grid");
+  const grid = document.querySelector(".lettermind-grid");
   grid.innerHTML = "";
   grid.style.gridTemplateColumns = `repeat(${wordLength + 2}, 1fr)`;
 
-  document.querySelector(".wordhunt-end").classList.remove("visible");
+  document.querySelector(".lettermind-end").classList.remove("visible");
   resetKeyboard();
 
   addRow(true);
@@ -89,23 +89,23 @@ async function initGame(options = getSelectedGameOptions()) {
 }
 
 function addRow(isActive = false) {
-  const grid = document.querySelector(".wordhunt-grid");
+  const grid = document.querySelector(".lettermind-grid");
 
   const row = document.createElement("div");
 
-  row.classList.add("wordhunt-row");
+  row.classList.add("lettermind-row");
   if (isActive) {
     row.classList.add("active");
   }
 
   row.innerHTML = `
-    <div class="wordhunt-num-correct"></div>
-    <div class="wordhunt-num-present"></div>
+    <div class="lettermind-num-correct"></div>
+    <div class="lettermind-num-present"></div>
 
     ${Array.from({ length: game.wordLength })
       .map((_, i) => `
         <div 
-          class="wordhunt-cell empty"
+          class="lettermind-cell empty"
           style="animation-delay: ${i * 100}ms;"
         ></div>
       `)
@@ -115,11 +115,11 @@ function addRow(isActive = false) {
 }
 
 function getActiveRow() {
-  return document.querySelector(".wordhunt-row.active");
+  return document.querySelector(".lettermind-row.active");
 }
 
 function getGuessFromRow(row) {
-  return Array.from(row.querySelectorAll(".wordhunt-cell.filled"))
+  return Array.from(row.querySelectorAll(".lettermind-cell.filled"))
     .map(cell => cell.textContent)
     .join("");
 }
@@ -130,7 +130,7 @@ function addLetter(letter) {
   const row = getActiveRow();
   if (!row) return;
 
-  const emptyCell = row.querySelector(".wordhunt-cell.empty");
+  const emptyCell = row.querySelector(".lettermind-cell.empty");
   if (emptyCell) {
     emptyCell.textContent = letter;
     emptyCell.classList.remove("empty");
@@ -145,7 +145,7 @@ function removeLetter() {
   if (!row) return;
   row.classList.remove("incorrect");
 
-  const filledCells = row.querySelectorAll(".wordhunt-cell.filled");
+  const filledCells = row.querySelectorAll(".lettermind-cell.filled");
   if (filledCells.length > 0) {
     filledCells[filledCells.length - 1].textContent = "";
     filledCells[filledCells.length - 1].classList.remove("filled");
@@ -192,7 +192,7 @@ function evaluateGuess(guess, target) {
 }
 
 function showError(message) {
-  const error = document.querySelector(".wordhunt-error");
+  const error = document.querySelector(".lettermind-error");
 
   error.textContent = message;
   error.classList.add("visible");
@@ -203,7 +203,7 @@ function showError(message) {
 }
 
 function showInfo(correct, present) {
-  const info = document.querySelector(".wordhunt-info");
+  const info = document.querySelector(".lettermind-info");
 
   info.textContent = "You have " + correct + " correct and " + present + " misplaced letters.";
   info.classList.add("visible");
@@ -214,17 +214,17 @@ function showInfo(correct, present) {
 }
 
 function buildKeyboard() {
-  const keyboard = document.querySelector(".wordhunt-keyboard");
+  const keyboard = document.querySelector(".lettermind-keyboard");
   keyboard.innerHTML = "";
 
   keyboardRows.forEach(rowLetters => {
     const row = document.createElement("div");
-    row.classList.add("wordhunt-keyboard-row");
+    row.classList.add("lettermind-keyboard-row");
 
     rowLetters.split("").forEach(letter => {
       const key = document.createElement("button");
       key.type = "button";
-      key.classList.add("wordhunt-key");
+      key.classList.add("lettermind-key");
       key.dataset.key = letter;
       key.textContent = letter;
       key.tabIndex = -1;
@@ -262,11 +262,11 @@ function buildKeyboard() {
   });
 
   const row = document.createElement("div");
-  row.classList.add("wordhunt-keyboard-row");
+  row.classList.add("lettermind-keyboard-row");
 
   const enterKey = document.createElement("button");
   enterKey.type = "button";
-  enterKey.classList.add("wordhunt-key", "wordhunt-action-key");
+  enterKey.classList.add("lettermind-key", "lettermind-action-key");
   enterKey.dataset.key = "enter";
   enterKey.textContent = "Enter";
   enterKey.tabIndex = -1;
@@ -280,7 +280,7 @@ function buildKeyboard() {
 
   const backspaceKey = document.createElement("button");
   backspaceKey.type = "button";
-  backspaceKey.classList.add("wordhunt-key", "wordhunt-action-key");
+  backspaceKey.classList.add("lettermind-key", "lettermind-action-key");
   backspaceKey.dataset.key = "backspace";
   backspaceKey.textContent = "Backspace";
   backspaceKey.tabIndex = -1;
@@ -298,7 +298,7 @@ function buildKeyboard() {
 }
 
 function resetKeyboard() {
-  document.querySelectorAll(".wordhunt-key").forEach(clearHighlight);
+  document.querySelectorAll(".lettermind-key").forEach(clearHighlight);
 }
 
 function clearHighlight(element) {
@@ -312,9 +312,9 @@ function toggleSelectedHighlight(element, propagateToCells = false) {
   element.classList.add(selectedHighlightClass);
   if (selectedHighlightClass === "highlight1" || propagateToCells) {
     let letter;
-    if (element.classList.contains("wordhunt-key")) {
+    if (element.classList.contains("lettermind-key")) {
       letter = element.dataset.key;
-    } else if (element.classList.contains("wordhunt-cell")) {
+    } else if (element.classList.contains("lettermind-cell")) {
       letter = element.textContent.toLowerCase();
     }
     if (letter) {
@@ -324,12 +324,12 @@ function toggleSelectedHighlight(element, propagateToCells = false) {
 }
 
 function propagateHighlight(letter, highlightClass) {
-  document.querySelectorAll(`.wordhunt-key[data-key="${letter}"]`).forEach(key => {
+  document.querySelectorAll(`.lettermind-key[data-key="${letter}"]`).forEach(key => {
     key.classList.remove(...highlightClasses);
     key.classList.add(highlightClass);
   });
 
-  document.querySelectorAll(".wordhunt-cell.filled").forEach(cell => {
+  document.querySelectorAll(".lettermind-cell.filled").forEach(cell => {
     if (cell.textContent.toLowerCase() === letter) {
       const hasHighlight = highlightClasses.some(cls =>
         cls !== "none" && cell.classList.contains(cls)
@@ -344,25 +344,25 @@ function propagateHighlight(letter, highlightClass) {
 
 function selectHighlight(highlightClass) {
   selectedHighlightClass = highlightClass;
-  document.querySelectorAll(".wordhunt-marker-btn").forEach(button => {
+  document.querySelectorAll(".lettermind-marker-btn").forEach(button => {
     button.classList.toggle("active", button.dataset.highlight === highlightClass);
   });
 }
 
 function setLetterHover(letter, isActive) {
-  document.querySelectorAll(".wordhunt-cell.filled").forEach(cell => {
+  document.querySelectorAll(".lettermind-cell.filled").forEach(cell => {
     if (cell.textContent.toLowerCase() === letter) {
       cell.classList.toggle("same-letter-hover", isActive);
     }
   });
 
-  document.querySelectorAll(`.wordhunt-key[data-key="${letter}"]`).forEach(key => {
+  document.querySelectorAll(`.lettermind-key[data-key="${letter}"]`).forEach(key => {
     key.classList.toggle("same-letter-hover", isActive);
   });
 }
 
 function flashKey(letter) {
-  const key = document.querySelector(`.wordhunt-key[data-key="${letter.toLowerCase()}"]`);
+  const key = document.querySelector(`.lettermind-key[data-key="${letter.toLowerCase()}"]`);
   if (!key) return;
 
   key.classList.add("pressed");
@@ -373,7 +373,7 @@ function flashKey(letter) {
 
 function endGame(row, success) {
   game.isGameOver = true;
-  const div = document.querySelector(".wordhunt-end");
+  const div = document.querySelector(".lettermind-end");
   if (success) {
     row.classList.add("correct");
     div.textContent = 'Congratulations! You guessed the word in ' + game.guesses.length + ' guesses.';
@@ -394,7 +394,7 @@ function giveUp() {
   }
 
   game.isGameOver = true;
-  const div = document.querySelector(".wordhunt-end");
+  const div = document.querySelector(".lettermind-end");
   div.textContent = 'The word was ' + game.targetWord + '.';
   div.classList.add("visible");
 }
@@ -406,7 +406,7 @@ function submitWord() {
 
   if (!row) return;
 
-  const filledCells = row.querySelectorAll(".wordhunt-cell.filled");
+  const filledCells = row.querySelectorAll(".lettermind-cell.filled");
 
   if (filledCells.length !== game.wordLength) return;
 
@@ -444,7 +444,7 @@ function submitWord() {
   });
 
   if (guess === game.targetWord) {
-    animateWordhuntResize(() => {
+    animateLettermindResize(() => {
       endGame(row, true);
     });
     return;
@@ -452,8 +452,8 @@ function submitWord() {
 
   const result = evaluateGuess(guess, game.targetWord);
 
-  row.querySelector(".wordhunt-num-correct").textContent = result.correct;
-  row.querySelector(".wordhunt-num-present").textContent = result.present;
+  row.querySelector(".lettermind-num-correct").textContent = result.correct;
+  row.querySelector(".lettermind-num-present").textContent = result.present;
 
   showInfo(result.correct, result.present);
 
@@ -461,32 +461,32 @@ function submitWord() {
 
     let nextRow = row.nextElementSibling;
     if (!nextRow) {
-      animateWordhuntResize(() => {
+      animateLettermindResize(() => {
         addRow(true);
       });
     } else {
       nextRow.classList.add("active");
       if (!nextRow.nextElementSibling) {
-        animateWordhuntResize(() => {
+        animateLettermindResize(() => {
           addRow();
         });
       }
     }
   } else {
-    animateWordhuntResize(() => {
+    animateLettermindResize(() => {
       endGame(row, false);
     });
   }
 }
 
-// event listener to add or remove letters on the active wordhunt row
+// event listener to add or remove letters on the active lettermind row
 document.addEventListener("keydown", (event) => {
   const target = event.target;
   if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
   if (
     target.tagName === "BUTTON" &&
-    !target.classList.contains("wordhunt-key") &&
-    !target.classList.contains("wordhunt-marker-btn")
+    !target.classList.contains("lettermind-key") &&
+    !target.classList.contains("lettermind-marker-btn")
   ) return;
   if (game.isGameOver) return;
 
@@ -505,8 +505,8 @@ document.addEventListener("keydown", (event) => {
 const new_game_btn = document.getElementById("new-game-btn");
 const give_up_btn = document.getElementById("give-up-btn");
 const gameTransitionElements = [
-  ".wordhunt-container",
-  ".wordhunt-keyboard",
+  ".lettermind-container",
+  ".lettermind-keyboard",
 ];
 
 function setGameTransitionVisible(isVisible) {
@@ -536,7 +536,7 @@ give_up_btn.addEventListener("click", () => {
   giveUp();
 });
 
-document.querySelectorAll(".wordhunt-marker-btn").forEach(button => {
+document.querySelectorAll(".lettermind-marker-btn").forEach(button => {
   button.addEventListener("click", () => {
     selectHighlight(button.dataset.highlight);
     button.blur();
