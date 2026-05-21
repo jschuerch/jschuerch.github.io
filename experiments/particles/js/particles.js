@@ -27,8 +27,12 @@ export class Particle {
   }
 
   updateProperties() {
-    this.vx = this.vxSeed * this.config.particles.speed;
-    this.vy = this.vySeed * this.config.particles.speed;
+    const dirX = Math.sign(this.vx || this.vxSeed);
+    const dirY = Math.sign(this.vy || this.vySeed);
+
+    this.vx = Math.abs(this.vxSeed * this.config.particles.speed) * dirX;
+    this.vy = Math.abs(this.vySeed * this.config.particles.speed) * dirY;
+
     this.color = this.config.colors.particle;
     this.radius = this.radiusSeed * this.config.particles.radius;
   }
@@ -111,3 +115,4 @@ export class Particle {
     ctx.globalAlpha = 1;
   }
 }
+

@@ -41,7 +41,14 @@ canvas {
   min-width: calc(22px + 2rem);
   min-height: calc(22px + 2rem);
   transition: opacity var(--transition);
+  max-height: calc(100vh - 2rem);
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
 }
+
 
 .configuration .config-group {
   opacity: 0;
@@ -121,4 +128,19 @@ canvas {
 
 .toggle-group button.active {
   color: var(--bg);
+}
+
+.slider-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider-control input {
+  width: 100%;
 }
