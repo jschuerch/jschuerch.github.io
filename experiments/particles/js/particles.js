@@ -10,13 +10,10 @@ export class Particle {
   }
 
   reset() {
-    this.trailLength = this.config.particles.trailLength;
     this.x = Math.random() * this.canvas.width;
     this.y = Math.random() * this.canvas.height;
-    this.trails = {
-      x: [],
-      y: []
-    }
+    this.trailLength = this.config.particles.trailLength;
+    this.trails = []
     this.updateProperties();
     this.rvx = 0;
     this.rvy = 0;
@@ -51,11 +48,9 @@ export class Particle {
       }
     }
     if (this.trailLength > 0) {
-      this.trails.x.push(this.x)
-      this.trails.y.push(this.y)
-      if (this.trails.x.length > this.trailLength) {
-        this.trails.x.shift();
-        this.trails.y.shift();
+      this.trails.push({ x: this.x, y: this.y });
+      while (this.trails.length > this.trailLength) {
+        this.trails.shift();
       }
     }
     this.x += this.vx + this.rvx;
@@ -99,12 +94,12 @@ export class Particle {
 
     if (this.trailLength > 0) {
       const trailAlpha = 1 / (this.trailLength + 1);
-      let i = this.trailLength - this.trails.x.length;
-      for (; i < this.trailLength; i++) {
-        let strength = (trailAlpha * (i + 1));
+      let offset = this.trailLength - this.trails.length;
+      for (let i = 0; i < this.trails.length; i++) {
+        let strength = (trailAlpha * (offset + i + 1));
         ctx.beginPath();
         ctx.globalAlpha = this.alpha * strength;
-        ctx.arc(this.trails.x[i], this.trails.y[i], this.radius * strength, 0, Math.PI * 2);
+        ctx.arc(this.trails[i].x, this.trails[i].y, this.radius * strength, 0, Math.PI * 2);
         ctx.fill();
       }
     }
