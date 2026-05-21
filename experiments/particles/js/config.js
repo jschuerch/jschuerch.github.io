@@ -7,9 +7,10 @@ export const config = {
   canvasMode: CanvasEdgeMode.BOUNCE,
 
   particles: {
-    count: 120,
+    count: 500,
     radius: 2.5,
-    speed: 1
+    speed: 2,
+    trailLength: 10
   },
 
   edges: {
