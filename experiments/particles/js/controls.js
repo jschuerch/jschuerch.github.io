@@ -23,37 +23,62 @@ export function createSlider({
   const wrapper = document.createElement('div');
   wrapper.className = 'slider-control';
 
-  const topRow = document.createElement('div');
-  topRow.className = 'slider-header';
+  // Header row
+  const header = document.createElement('div');
+  header.className = 'slider-header';
 
   const labelEl = document.createElement('label');
   labelEl.textContent = label;
 
-  const valueEl = document.createElement('span');
-  valueEl.textContent = value;
+  const inputNumber = document.createElement('input');
+  inputNumber.type = 'number';
+  inputNumber.min = min;
+  inputNumber.max = max;
+  inputNumber.step = step;
+  inputNumber.value = value;
+  inputNumber.className = 'slider-number-input';
 
-  topRow.append(labelEl, valueEl);
+  header.append(labelEl, inputNumber);
 
-  const input = document.createElement('input');
-  input.type = 'range';
-  input.min = min;
-  input.max = max;
-  input.step = step;
-  input.value = value;
+  // Slider
+  const inputRange = document.createElement('input');
+  inputRange.type = 'range';
+  inputRange.min = min;
+  inputRange.max = max;
+  inputRange.step = step;
+  inputRange.value = value;
 
-  input.addEventListener('input', () => {
-    const newValue = Number(input.value);
+  function updateValue(newValue) {
+    const parsed = Number(newValue);
 
-    valueEl.textContent = newValue;
+    inputRange.value = parsed;
+    inputNumber.value = parsed;
 
-    onChange?.(newValue);
+    onChange?.(parsed);
+  }
+
+  inputRange.addEventListener('input', () => {
+    updateValue(inputRange.value);
   });
 
-  wrapper.append(topRow, input);
+  inputNumber.addEventListener('change', () => {
+    let value = Number(inputNumber.value);
+
+    // Clamp value
+    value = Math.max(min, Math.min(max, value));
+
+    updateValue(value);
+  });
+
+  wrapper.append(header, inputRange);
 
   parent.appendChild(wrapper);
 
-  return input;
+  return {
+    wrapper,
+    inputRange,
+    inputNumber
+  };
 }
 
 export function createCheckbox({

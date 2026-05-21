@@ -86,6 +86,18 @@ export function buildConfigurations(config, engine) {
 
   createSlider({
     parent: particlesSection,
+    label: 'Radius',
+    min: 0,
+    max: 10,
+    step: 0.1,
+    value: config.particles.radius,
+    onChange: (value) => {
+      engine.setParticleRadius(value);
+    }
+  });
+
+  createSlider({
+    parent: particlesSection,
     label: 'Speed',
     min: 0,
     max: 20,
@@ -96,6 +108,26 @@ export function buildConfigurations(config, engine) {
     }
   });
 
+  createCheckbox({
+    parent: particlesSection,
+    label: 'Show Trails',
+    checked: true,
+    onChange: (value) => {
+      config.particles.showTrails = value;
+    }
+  });
+
+  createSlider({
+    parent: particlesSection,
+    label: 'Trail Length',
+    min: 0,
+    max: 15,
+    step: 1,
+    value: config.particles.trailLength,
+    onChange: (value) => {
+      config.particles.trailLength = value;
+    }
+  });
 
   const edgesSection = createSection('Edges');
   configContainer.appendChild(edgesSection);
@@ -106,6 +138,18 @@ export function buildConfigurations(config, engine) {
     checked: true,
     onChange: (value) => {
       config.edges.show = value;
+    }
+  });
+
+  createSlider({
+    parent: edgesSection,
+    label: 'Max Distance',
+    min: 0,
+    max: 200,
+    step: 0.1,
+    value: config.edges.maxDist,
+    onChange: (value) => {
+      config.edges.maxDist = value;
     }
   });
 }

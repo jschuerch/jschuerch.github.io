@@ -35,6 +35,10 @@ export class ParticleEngine {
       this.particles.push(...newParticles);
     }
   }
+  setParticleRadius(value) {
+    this.config.particles.radius = value;
+    this.particles.forEach(p => p.updateProperties());
+  }
 
   setParticleSpeed(value) {
     this.config.particles.speed = value;

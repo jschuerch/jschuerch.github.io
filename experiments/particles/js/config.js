@@ -10,6 +10,7 @@ export const config = {
     count: 500,
     radius: 2.5,
     speed: 2,
+    showTrails: true,
     trailLength: 10
   },
 

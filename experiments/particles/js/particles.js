@@ -12,7 +12,6 @@ export class Particle {
   reset() {
     this.x = Math.random() * this.canvas.width;
     this.y = Math.random() * this.canvas.height;
-    this.trailLength = this.config.particles.trailLength;
     this.trails = []
     this.updateProperties();
     this.rvx = 0;
@@ -51,9 +50,9 @@ export class Particle {
         this.rvy = dirY * f * this.config.mouse.repelForce;
       }
     }
-    if (this.trailLength > 0) {
+    if (this.config.particles.showTrails) {
       this.trails.push({ x: this.x, y: this.y });
-      while (this.trails.length > this.trailLength) {
+      while (this.trails.length > this.config.particles.trailLength) {
         this.trails.shift();
       }
     }
@@ -96,9 +95,9 @@ export class Particle {
     ctx.beginPath();
     ctx.fillStyle = this.color;
 
-    if (this.trailLength > 0) {
-      const trailAlpha = 1 / (this.trailLength + 1);
-      let offset = this.trailLength - this.trails.length;
+    if (this.config.particles.showTrails) {
+      const trailAlpha = 1 / (this.config.particles.trailLength + 1);
+      let offset = this.config.particles.trailLength - this.trails.length;
       for (let i = 0; i < this.trails.length; i++) {
         let strength = (trailAlpha * (offset + i + 1));
         ctx.beginPath();
