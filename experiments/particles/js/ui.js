@@ -1,5 +1,5 @@
 import { CanvasEdgeMode } from './config.js';
-import { createSection, createSlider, createCheckbox } from './controls.js'
+import { createSection, createSlider, createCheckbox, createColorPicker } from './controls.js'
 
 const configContainer = document.querySelector('.configuration');
 
@@ -150,6 +150,82 @@ export function buildConfigurations(config, engine) {
     value: config.edges.maxDist,
     onChange: (value) => {
       config.edges.maxDist = value;
+    }
+  });
+
+  const mouseSection = createSection('Mouse');
+  configContainer.appendChild(mouseSection);
+
+  createCheckbox({
+    parent: mouseSection,
+    label: 'Active',
+    checked: true,
+    onChange: (value) => {
+      config.mouse.active = value;
+    }
+  });
+
+  createSlider({
+    parent: mouseSection,
+    label: 'Repel Radius',
+    min: 0,
+    max: 200,
+    step: 0.1,
+    value: config.mouse.repelRadius,
+    onChange: (value) => {
+      config.mouse.repelRadius = value;
+    }
+  });
+
+  createSlider({
+    parent: mouseSection,
+    label: 'Repel Force',
+    min: 0,
+    max: 30,
+    step: 0.1,
+    value: config.mouse.repelForce,
+    onChange: (value) => {
+      config.mouse.repelForce = value;
+    }
+  });
+
+  const colorSection = createSection('Colors');
+  configContainer.appendChild(colorSection);
+
+  createColorPicker({
+    parent: colorSection,
+    label: 'Particle',
+    value: config.colors.particle,
+    onChange: (value) => {
+      engine.setParticleColor(value);
+    }
+  });
+
+  createColorPicker({
+    parent: colorSection,
+    label: 'Edge',
+    value: config.colors.edge,
+    onChange: (value) => {
+      config.colors.edge = value;
+    }
+  });
+
+  createColorPicker({
+    parent: colorSection,
+    label: 'Mouse',
+    value: config.colors.mouse,
+    onChange: (value) => {
+      config.colors.mouse = value;
+    }
+  });
+
+  createColorPicker({
+    parent: colorSection,
+    label: 'Background',
+    value: config.colors.background,
+    onChange: (value) => {
+      config.colors.background = value;
+      engine.canvas.style.background = value;
     }
   });
 }

@@ -107,3 +107,31 @@ export function createCheckbox({
 
   return input;
 }
+
+export function createColorPicker({
+  parent,
+  label,
+  value = '#ffffff',
+  onChange
+}) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'color-control';
+
+  const labelEl = document.createElement('label');
+  labelEl.textContent = label;
+
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = value;
+  input.className = 'color-input';
+
+  input.addEventListener('input', () => {
+    onChange?.(input.value);
+  });
+
+  wrapper.append(labelEl, input);
+
+  parent.appendChild(wrapper);
+
+  return input;
+}

@@ -193,3 +193,41 @@ canvas {
 
   color: var(--text);
 }
+
+.color-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+}
+
+.color-input {
+  appearance: none;
+
+  width: 42px;
+  height: 24px;
+
+  padding: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  overflow: hidden;
+
+  background: none;
+
+  cursor: pointer;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input::-webkit-color-swatch {
+  border: none;
+}
+
+.color-input::-moz-color-swatch {
+  border: none;
+}
